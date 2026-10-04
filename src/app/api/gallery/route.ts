@@ -4,6 +4,23 @@ import { validateOrigin } from "@/lib/auth";
 import { canManageSalon, getRequestIdentity } from "@/lib/request-auth";
 import { GalleryPhoto, GalleryCategory } from "@/lib/types";
 
+const VALID_CATEGORIES = new Set<GalleryCategory>(["Haircut", "Color", "Salon Event", "Before-After"]);
+const VALID_ASPECT_RATIOS = new Set(["square", "portrait", "landscape", "wide"]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function isHttpUrl(value: unknown): value is string {
+  if (typeof value !== "string" || value.length > 2048) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(req: Request) {
   const db = readDatabase();
   const { searchParams } = new URL(req.url);
@@ -36,22 +53,31 @@ export async function POST(req: Request) {
   }
   const user = identity.user;
 
-  const { imageUrl, caption, category, showOnHome, aspectRatio } = await req.json();
-  if (!imageUrl || !caption || !category) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+  if (!isRecord(body)) return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  const { imageUrl, caption, category, showOnHome, aspectRatio } = body;
+  if (!isHttpUrl(imageUrl) || typeof caption !== "string" || !caption.trim() || caption.length > 500 || typeof category !== "string" || !VALID_CATEGORIES.has(category as GalleryCategory)) {
     return NextResponse.json({ error: "imageUrl, caption, and category are required." }, { status: 400 });
   }
+  if (showOnHome !== undefined && typeof showOnHome !== "boolean") return NextResponse.json({ error: "showOnHome must be a boolean." }, { status: 400 });
+  if (aspectRatio !== undefined && (typeof aspectRatio !== "string" || !VALID_ASPECT_RATIOS.has(aspectRatio))) return NextResponse.json({ error: "Invalid aspect ratio." }, { status: 400 });
 
   const db = readDatabase();
   const newPhoto: GalleryPhoto = {
     id: "gal-" + Date.now(),
     imageUrl,
-    caption,
+    caption: caption.trim(),
     category: category as GalleryCategory,
     uploadedByAdminId: user.id,
     likesCount: 0,
     showOnHome: showOnHome ?? true,
     displayOrder: 1,
-    aspectRatio: aspectRatio || "portrait",
+    aspectRatio: (aspectRatio as GalleryPhoto["aspectRatio"]) || "portrait",
     createdAt: new Date().toISOString(),
   };
 

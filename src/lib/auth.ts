@@ -11,13 +11,23 @@ let _jwtSecret: string | null = null;
 
 // Simple in-memory rate limiter (for production, use Redis or a proper rate-limiting library)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+let rateLimitChecks = 0;
+const MAX_RATE_LIMIT_ENTRIES = 10_000;
 
 export function checkRateLimit(identifier: string, maxRequests: number = 5, windowMs: number = 60000): boolean {
   const now = Date.now();
+  // Expire stale keys periodically and cap attacker-controlled key growth.
+  if (++rateLimitChecks % 128 === 0 || rateLimitMap.size >= MAX_RATE_LIMIT_ENTRIES) {
+    for (const [key, value] of rateLimitMap) {
+      if (value.resetTime <= now || rateLimitMap.size >= MAX_RATE_LIMIT_ENTRIES) rateLimitMap.delete(key);
+    }
+  }
   const record = rateLimitMap.get(identifier);
 
   if (!record || now > record.resetTime) {
-    rateLimitMap.set(identifier, { count: 1, resetTime: now + windowMs });
+    if (rateLimitMap.size < MAX_RATE_LIMIT_ENTRIES) {
+      rateLimitMap.set(identifier, { count: 1, resetTime: now + windowMs });
+    }
     return true;
   }
 

@@ -49,7 +49,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Stylist, service, date, and time are required." }, { status: 400 });
   }
 
-  if (typeof visitDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(visitDate) || visitDate <= new Date().toISOString().slice(0, 10)) {
+  const parsedVisitDate = typeof visitDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(visitDate)
+    ? new Date(`${visitDate}T00:00:00.000Z`)
+    : null;
+  if (!parsedVisitDate || parsedVisitDate.toISOString().slice(0, 10) !== visitDate || visitDate <= new Date().toISOString().slice(0, 10)) {
     return NextResponse.json({ error: "Appointments must be booked for a future date." }, { status: 400 });
   }
   if (typeof timeSlot !== "string" || !VALID_TIME_SLOTS.has(timeSlot)) {
@@ -133,8 +136,17 @@ export async function PATCH(req: Request) {
   const identity = await getRequestIdentity(req);
   if (!identity) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { appointmentId, status } = await req.json();
-  if (!appointmentId || !status || !VALID_STATUSES.has(status)) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+  const { appointmentId, status } = body as Record<string, unknown>;
+  if (typeof appointmentId !== "string" || !appointmentId || typeof status !== "string" || !VALID_STATUSES.has(status)) {
     return NextResponse.json({ error: "appointmentId and status required" }, { status: 400 });
   }
 
@@ -145,6 +157,11 @@ export async function PATCH(req: Request) {
   const apt = db.appointments[aptIndex];
   const isStaffOrOwner = canManageSalon(identity);
 
+  // Appointment completion is a one-way transition so loyalty rewards cannot be earned repeatedly.
+  if (apt.status !== "upcoming") {
+    return NextResponse.json({ error: "Only upcoming appointments can be updated." }, { status: 409 });
+  }
+
   // Clients can only cancel their own appointments; only staff or owners can alter other statuses.
   if (!isStaffOrOwner) {
     if (apt.userId !== identity.user.id || status !== "cancelled") {
@@ -153,10 +170,6 @@ export async function PATCH(req: Request) {
         { status: 403 }
       );
     }
-  }
-
-  if (apt.status === "completed" && status === "completed") {
-    return NextResponse.json({ error: "This appointment has already been completed." }, { status: 409 });
   }
 
   db.appointments[aptIndex].status = status as Appointment["status"];
