@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User, UserRole } from "./types";
 import { readDatabase } from "./db";
-import { isValidRequestOrigin } from "./security";
+import { isValidRequestOrigin, matchesLegacyPassword } from "./security";
 
 let _jwtSecret: string | null = null;
 
@@ -102,7 +102,11 @@ export function hashPassword(password: string): string {
 }
 
 export function comparePassword(password: string, hash: string): boolean {
-  return bcrypt.compareSync(password, hash);
+  if (/^\$2[aby]\$\d{2}\$/.test(hash)) {
+    return bcrypt.compareSync(password, hash);
+  }
+
+  return matchesLegacyPassword(password, hash);
 }
 
 export function signToken(payload: SessionPayload): string {

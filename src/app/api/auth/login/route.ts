@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { readDatabase } from "@/lib/db";
-import { comparePassword, getSafeUser, signToken, checkRateLimit, getRateLimitResetTime, validateOrigin } from "@/lib/auth";
+import { comparePassword, getSafeUser, hashPassword, signToken, checkRateLimit, getRateLimitResetTime, validateOrigin } from "@/lib/auth";
 import { findUserByIdentifier } from "@/lib/security";
+import { writeDatabase } from "@/lib/db";
 
 export async function POST(req: Request) {
   try {
@@ -53,6 +54,11 @@ export async function POST(req: Request) {
         { error: "Invalid credentials." },
         { status: 401 }
       );
+    }
+
+    if (!user.passwordHash.startsWith("$2")) {
+      user.passwordHash = hashPassword(password);
+      writeDatabase(db);
     }
 
     const token = signToken({

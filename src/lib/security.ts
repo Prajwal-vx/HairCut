@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "crypto";
 import type { SalonDatabase } from "./types";
 
 export function isValidRequestOrigin(
@@ -8,6 +9,13 @@ export function isValidRequestOrigin(
   if (environment !== "production") return true;
   if (!origin || !host) return false;
   return origin === `https://${host}`;
+}
+
+export function matchesLegacyPassword(password: string, hash: string): boolean {
+  if (!/^[a-f\d]{64}$/i.test(hash)) return false;
+
+  const passwordHash = createHash("sha256").update(password).digest();
+  return timingSafeEqual(passwordHash, Buffer.from(hash, "hex"));
 }
 
 export function removeLegacyDemoAccounts(db: SalonDatabase): boolean {

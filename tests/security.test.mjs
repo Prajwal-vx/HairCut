@@ -1,11 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import {
   isValidRequestOrigin,
+  matchesLegacyPassword,
   removeLegacyDemoAccounts,
   matchesPhone,
   findUserByIdentifier,
 } from "../src/lib/security.ts";
+
+test("legacy SHA-256 password hashes can be verified and reject incorrect passwords", () => {
+  const password = "LegacyPassword123";
+  const hash = createHash("sha256").update(password).digest("hex");
+
+  assert.equal(matchesLegacyPassword(password, hash), true);
+  assert.equal(matchesLegacyPassword("IncorrectPassword123", hash), false);
+  assert.equal(matchesLegacyPassword(password, "not-a-hash"), false);
+});
 
 test("production mutations require a matching HTTPS origin", () => {
   assert.equal(isValidRequestOrigin("https://salon.example", "salon.example", "production"), true);
