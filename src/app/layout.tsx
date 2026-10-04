@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/providers/ClientProviders";
+import { PageProgressBar } from "@/components/ui/ProgressBar";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <body className="antialiased font-body">
+        <PageProgressBar />
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>

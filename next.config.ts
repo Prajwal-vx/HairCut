@@ -16,6 +16,19 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+    formats: ["image/avif", "image/webp"],
+  },
+  // Optimize font loading
+  optimizeFonts: true,
+  // Enable React strict mode for better error detection
+  reactStrictMode: true,
 };
 
 export default nextConfig;

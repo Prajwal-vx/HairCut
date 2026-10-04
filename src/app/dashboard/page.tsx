@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Scissors, Calendar, Gift, Bell, Share2, LogOut, Award, CheckCircle } from "lucide-react";
+import { Scissors, Calendar, Gift, Bell, Share2, LogOut, Award, CheckCircle, Sparkles, Shield, TrendingUp, FileText, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
 import { FadeIn } from "@/components/motion/FadeIn";
+import { PageLoader } from "@/components/ui/LoadingSpinner";
 import { useAuth } from "@/context/AuthContext";
 import { formatCurrency, getDaysSince, calculateStreakInfo, getUserBadges } from "@/lib/utils";
 import type { Appointment, NotificationLog } from "@/lib/types";
@@ -46,11 +47,7 @@ function DashboardContent() {
   };
 
   if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-[#0d0c0b] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#c5a880] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <PageLoader message="Loading your dashboard..." />;
   }
 
   const upcoming = appointments.filter((a) => a.status === "upcoming");
@@ -265,6 +262,47 @@ function DashboardContent() {
 
             {/* RIGHT COLUMN */}
             <div className="space-y-6">
+              {/* Quick Actions - Hair Profile */}
+              <FadeIn delay={0.05}>
+                <div className="glass-card rounded-2xl p-6">
+                  <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#c5a880]" /> Your Hair Profile
+                  </h2>
+                  <div className="space-y-3">
+                    <Link href="/passport" className="flex items-center gap-3 p-3 rounded-xl bg-[#141312] border border-[#2e2b26] hover:border-[#c5a880] transition-colors group">
+                      <div className="w-10 h-10 rounded-lg bg-[#c5a880]/10 border border-[#c5a880]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#c5a880]/20 transition-colors">
+                        <Shield className="w-5 h-5 text-[#c5a880]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white text-sm font-semibold">Hair Passport</p>
+                        <p className="text-[#78716c] text-xs">Your style preferences</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[#78716c] group-hover:text-[#c5a880] transition-colors" />
+                    </Link>
+                    <Link href="/style-dna" className="flex items-center gap-3 p-3 rounded-xl bg-[#141312] border border-[#2e2b26] hover:border-[#c5a880] transition-colors group">
+                      <div className="w-10 h-10 rounded-lg bg-[#c5a880]/10 border border-[#c5a880]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#c5a880]/20 transition-colors">
+                        <TrendingUp className="w-5 h-5 text-[#c5a880]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white text-sm font-semibold">Style DNA</p>
+                        <p className="text-[#78716c] text-xs">Your style preferences</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[#78716c] group-hover:text-[#c5a880] transition-colors" />
+                    </Link>
+                    <Link href="/barber-brief" className="flex items-center gap-3 p-3 rounded-xl bg-[#141312] border border-[#2e2b26] hover:border-[#c5a880] transition-colors group">
+                      <div className="w-10 h-10 rounded-lg bg-[#c5a880]/10 border border-[#c5a880]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#c5a880]/20 transition-colors">
+                        <FileText className="w-5 h-5 text-[#c5a880]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white text-sm font-semibold">Barber Brief</p>
+                        <p className="text-[#78716c] text-xs">Show your stylist</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-[#78716c] group-hover:text-[#c5a880] transition-colors" />
+                    </Link>
+                  </div>
+                </div>
+              </FadeIn>
+
               {/* In-App Notifications Center */}
               <FadeIn delay={0.05}>
                 <div className="glass-card rounded-2xl p-6">
