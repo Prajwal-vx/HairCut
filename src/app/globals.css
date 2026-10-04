@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+:root {
+  --charcoal: #141312;
+  --charcoal-light: #1f1d1a;
+  --charcoal-border: #2e2b26;
+  --cream: #fbf9f5;
+  --cream-dark: #f3efe6;
+  --cream-muted: #e7e0d3;
+  --gold: #c5a880;
+  --gold-light: #dfc8a8;
+  --gold-dark: #a8885b;
+  --terracotta: #c86d51;
+  --terracotta-dark: #aa543b;
+}
+
+body {
+  background-color: #0d0c0b;
+  color: #f3efe6;
+  font-family: var(--font-body), sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.font-body {
+  font-family: var(--font-body), -apple-system, sans-serif;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #141312;
+}
+::-webkit-scrollbar-thumb {
+  background: #2e2b26;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c5a880;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #dfc8a8 0%, #c5a880 50%, #9a7b4f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-terracotta-gradient {
+  background: linear-gradient(135deg, #f29a7e 0%, #c86d51 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #c5a880 0%, #a8885b 100%);
+}
+
+.bg-gold-glow {
+  box-shadow: 0 0 25px rgba(197, 168, 128, 0.25);
+}
+
+.bg-streak-glow {
+  box-shadow: 0 0 30px rgba(200, 109, 81, 0.35);
+}
+
+.glass-card {
+  background: rgba(22, 20, 18, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(197, 168, 128, 0.15);
+}
+
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(197, 168, 128, 0.4);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes flame-pulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
+  }
+  50% {
+    transform: scale(1.15) rotate(3deg);
+    filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.8));
+  }
+}
+
+.flame-animated {
+  animation: flame-pulse 2.2s infinite ease-in-out;
+  display: inline-block;
+}
