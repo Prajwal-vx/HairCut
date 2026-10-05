@@ -11,9 +11,18 @@ import {
   CheckCircle2,
   ChevronRight,
   Clipboard,
+  AlertTriangle,
+  BookOpen,
+  Clock,
   Download,
+  RefreshCw,
+  Scissors,
   Share2,
+  Shield,
+  SkipForward,
+  Sliders,
   X,
+  Zap,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";

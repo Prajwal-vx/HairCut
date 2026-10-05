@@ -3,7 +3,6 @@ import { readDatabase, writeDatabase } from "@/lib/db";
 import { validateOrigin } from "@/lib/auth";
 import { canManageSalon, getRequestIdentity } from "@/lib/request-auth";
 import { Appointment, LoyaltyTransaction } from "@/lib/types";
-import { emitEvent } from "@/lib/realtime";
 
 const VALID_TIME_SLOTS = new Set([
   "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
@@ -118,9 +117,6 @@ export async function POST(req: Request) {
 
   writeDatabase(db);
 
-  // Emit real-time event
-  emitEvent("appointment_created", { appointment: newApt, serviceName: service.name, stylistName: stylist?.name }, userId);
-
   return NextResponse.json({
     success: true,
     appointment: { ...newApt, serviceName: service.name, stylistName: stylist?.name },
@@ -214,9 +210,6 @@ export async function PATCH(req: Request) {
   }
 
   writeDatabase(db);
-
-  // Emit real-time event for appointment update
-  emitEvent("appointment_updated", { appointment: db.appointments[aptIndex], status }, apt.userId);
 
   return NextResponse.json({ success: true, appointment: db.appointments[aptIndex] });
 }

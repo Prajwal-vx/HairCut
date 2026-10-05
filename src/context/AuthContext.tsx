@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 
 import { UserRole } from "@/lib/types";
@@ -21,12 +21,10 @@ interface UserType {
 
 interface AuthContextType {
   user: UserType | null;
-  token: string | null;
   loading: boolean;
   login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  refreshUser: () => Promise<void>;
 }
 
 interface RegisterData {
@@ -45,25 +43,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const [user, setUser] = useState<UserType | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-
-  const refreshUser = useCallback(async () => {
-    try {
-      const res = await fetch("/api/auth/me", {
-        credentials: "include",
-        cache: "no-store",
-      });
-      const data = await res.json();
-      if (data.user) {
-        setUser(data.user);
-      } else {
-        setUser(null);
-      }
-    } catch {
-      setUser(null);
-    } finally {
-      setIsAuthLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
     let ignore = false;
@@ -136,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token: null, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
