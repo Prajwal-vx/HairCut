@@ -34,8 +34,7 @@ export default function GalleryPage() {
           setLoading(false);
         }
       })
-      .catch((err) => {
-        console.error("Gallery fetch error:", err);
+      .catch(() => {
         if (!cancelled) setLoading(false);
       });
 

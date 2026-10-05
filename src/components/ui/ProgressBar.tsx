@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export function PageProgressBar() {
   const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -13,42 +12,24 @@ export function PageProgressBar() {
     const handleStart = () => {
       if (!mounted) return;
       setIsLoading(true);
-      setProgress(0);
     };
 
     const handleComplete = () => {
       if (!mounted) return;
-      setProgress(100);
       setTimeout(() => {
-        if (mounted) {
-          setIsLoading(false);
-          setProgress(0);
-        }
+        if (mounted) setIsLoading(false);
       }, 300);
     };
 
-    // Simulate progress
-    let interval: NodeJS.Timeout;
-    if (isLoading) {
-      interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 90) return prev;
-          return prev + Math.random() * 10;
-        });
-      }, 100);
-    }
-
-    // Listen to route changes
     window.addEventListener("beforeunload", handleStart);
     window.addEventListener("load", handleComplete);
 
     return () => {
       mounted = false;
-      if (interval) clearInterval(interval);
       window.removeEventListener("beforeunload", handleStart);
       window.removeEventListener("load", handleComplete);
     };
-  }, [isLoading]);
+  }, []);
 
   return (
     <AnimatePresence>
@@ -62,8 +43,8 @@ export function PageProgressBar() {
           <motion.div
             className="h-full bg-gradient-to-r from-[#c5a880] to-[#c86d51]"
             initial={{ width: "0%" }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.3 }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 0.5 }}
           />
         </motion.div>
       )}

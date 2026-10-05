@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Scissors, Star, MapPin, Clock, ChevronRight, Sparkles, Compass } from "lucide-react";
+import { Scissors, Star, ChevronRight, Sparkles, Compass } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
@@ -400,7 +400,7 @@ export default function HomePage() {
               <motion.div key={activeTestimonial} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.5 }} className="glass-card rounded-2xl p-8">
                 <div className="flex gap-1 mb-4">
                   {[...Array(testimonials[activeTestimonial].rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-[#c5a880] text-[#c5a880]" />
+                    <span key={i} className="text-[#c5a880]">★</span>
                   ))}
                 </div>
                 <p className="text-[#d0c8be] text-lg leading-relaxed italic mb-6">
@@ -438,8 +438,8 @@ export default function HomePage() {
                   <span className="text-[#c5a880] text-xs font-semibold tracking-[0.25em] uppercase mb-4 block">Visit Us</span>
                   <h2 className="text-3xl font-bold text-white mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Find Us in Birtamode</h2>
                   <div className="space-y-3 text-sm text-[#78716c]">
-                    <div className="flex gap-3"><MapPin className="w-4 h-4 text-[#c5a880] flex-shrink-0 mt-0.5" /><span>Ratan Complex, Bhadrapur Bus Stand, Birtamode, Jhapa, Nepal</span></div>
-                    <div className="flex gap-3"><Clock className="w-4 h-4 text-[#c5a880] flex-shrink-0 mt-0.5" /><span>Mon-Fri: 9 AM - 8 PM · Sat-Sun: 8 AM - 9 PM</span></div>
+                    <div className="flex gap-3"><span>📍 Ratan Complex, Bhadrapur Bus Stand, Birtamode, Jhapa, Nepal</span></div>
+                    <div className="flex gap-3"><span>🕐 Mon-Fri: 9 AM - 8 PM · Sat-Sun: 8 AM - 9 PM</span></div>
                   </div>
                   <Link href="/contact" className="inline-flex items-center gap-2 mt-6 bg-[#c5a880] text-[#141312] px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#d4b898] transition-colors">
                     Get Directions <ChevronRight className="w-4 h-4" />
