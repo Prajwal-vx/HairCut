@@ -17,17 +17,6 @@ export function LoadingSpinner({ size = "md", className = "" }: LoadingSpinnerPr
   );
 }
 
-export function FullPageLoader() {
-  return (
-    <div className="min-h-screen bg-[#0d0c0b] flex items-center justify-center">
-      <div className="text-center">
-        <LoadingSpinner size="lg" className="mx-auto mb-4" />
-        <p className="text-[#78716c] text-sm">Loading...</p>
-      </div>
-    </div>
-  );
-}
-
 export function PageLoader({ message = "Loading..." }: { message?: string }) {
   return (
     <div className="flex items-center justify-center py-12">

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { readDatabase, writeDatabase } from "@/lib/db";
 import { validateOrigin } from "@/lib/auth";
-import { getRequestIdentity } from "@/lib/requestIdentity";
-import { WalkInEntry, QueueStatus } from "@/lib/types";
+import { getRequestIdentity } from "@/lib/request-auth";
+import { SalonDatabase, WalkInEntry, QueueStatus } from "@/lib/types";
 
 const VALID_STATUSES: QueueStatus[] = ["waiting", "in-service", "completed", "skipped", "left"];
 
@@ -11,14 +11,14 @@ function calculateEstimatedWait(position: number): number {
   return position * 20;
 }
 
-function updateQueuePositions(db: any): void {
+function updateQueuePositions(db: SalonDatabase): void {
   if (!db.walkInQueue) return;
 
   const waitingEntries = db.walkInQueue
-    .filter((e: WalkInEntry) => e.status === "waiting")
-    .sort((a: WalkInEntry, b: WalkInEntry) => new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime());
+    .filter((entry) => entry.status === "waiting")
+    .sort((a, b) => new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime());
 
-  waitingEntries.forEach((entry: WalkInEntry, index: number) => {
+  waitingEntries.forEach((entry, index) => {
     entry.position = index + 1;
     entry.estimatedWaitMinutes = calculateEstimatedWait(entry.position);
   });
@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ queue: db.walkInQueue });
   }
 
-  const userEntry = db.walkInQueue.find((e: WalkInEntry) => e.userId === identity.user.id);
+  const userEntry = db.walkInQueue.find((entry) => entry.userId === identity.user.id);
   return NextResponse.json({ queue: userEntry ? [userEntry] : [] });
 }
 
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
   if (!db.walkInQueue) db.walkInQueue = [];
 
   // Check if user is already in queue
-  const existing = db.walkInQueue.find((e: WalkInEntry) => e.userId === identity.user.id && e.status === "waiting");
+  const existing = db.walkInQueue.find((entry) => entry.userId === identity.user.id && entry.status === "waiting");
   if (existing) {
     return NextResponse.json({ error: "You are already in the queue." }, { status: 409 });
   }
@@ -110,6 +110,10 @@ export async function PATCH(req: Request) {
 
   const db = readDatabase();
   if (!db.walkInQueue) db.walkInQueue = [];
+
+  if (body.status !== undefined && !VALID_STATUSES.includes(body.status as QueueStatus)) {
+    return NextResponse.json({ error: "Invalid queue status." }, { status: 400 });
+  }
 
   const idx = db.walkInQueue.findIndex((e: WalkInEntry) => e.id === body.id);
   if (idx === -1) {

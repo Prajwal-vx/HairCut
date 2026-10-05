@@ -2,14 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Sparkles,
   RefreshCw,
   Edit,
   Save,
-  ChevronRight,
-  Shield,
   TrendingUp,
   X,
   Zap,

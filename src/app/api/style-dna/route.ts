@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { readDatabase, writeDatabase } from "@/lib/db";
 import { validateOrigin } from "@/lib/auth";
 import { getRequestIdentity } from "@/lib/request-auth";
-import { StyleDNA } from "@/lib/types";
-
-const VALID_SCORES = [0, 100];
+import { HairPassport, StyleDNA } from "@/lib/types";
 
 function validateStyleDNAFields(body: Record<string, unknown>): string | null {
   const fields: (keyof StyleDNA)[] = [
@@ -31,10 +29,7 @@ function validateStyleDNAFields(body: Record<string, unknown>): string | null {
 }
 
 function computeStyleDNA(
-  haircutHistory: any[],
-  hairPassport: any,
-  likes: string[],
-  dislikes: string[]
+  hairPassport?: HairPassport
 ): Omit<StyleDNA, "id" | "userId" | "computedAt" | "updatedAt"> {
   // Initialize scores
   let minimalist = 50;
@@ -44,43 +39,6 @@ function computeStyleDNA(
   let experimental = 50;
   let shortStyles = 50;
   let naturalFinish = 50;
-
-  // Analyze haircut history
-  if (haircutHistory && haircutHistory.length > 0) {
-    const recentCuts = haircutHistory.slice(-5); // Last 5 cuts
-
-    for (const cut of recentCuts) {
-      // Hair length analysis
-      if (cut.hairLength === "very-short" || cut.hairLength === "short") {
-        shortStyles += 10;
-      } else if (cut.hairLength === "long" || cut.hairLength === "very-long") {
-        shortStyles -= 10;
-      }
-
-      // Maintenance analysis
-      if (cut.maintenanceLevel === "low") {
-        lowMaintenance += 15;
-        minimalist += 5;
-      } else if (cut.maintenanceLevel === "high") {
-        lowMaintenance -= 15;
-        experimental += 5;
-      }
-
-      // Texture analysis
-      if (cut.hairTexture === "curly" || cut.hairTexture === "coily") {
-        textured += 10;
-      }
-
-      // Finish analysis
-      if (cut.finishType?.toLowerCase().includes("natural") || cut.finishType?.toLowerCase().includes("matte")) {
-        naturalFinish += 10;
-        minimalist += 5;
-      } else if (cut.finishType?.toLowerCase().includes("gloss") || cut.finishType?.toLowerCase().includes("shine")) {
-        naturalFinish -= 5;
-        classic += 5;
-      }
-    }
-  }
 
   // Analyze Hair Passport
   if (hairPassport) {
@@ -107,10 +65,6 @@ function computeStyleDNA(
     }
   }
 
-  // Analyze likes/dislikes (if hairstyle tags are stored)
-  // This would be implemented when we have a like/dislike system for hairstyles
-  // For now, we'll keep the base scores
-
   // Normalize scores to 0-100 range
   const normalize = (score: number) => Math.max(0, Math.min(100, score));
 
@@ -136,9 +90,7 @@ export async function GET(req: Request) {
   if (!styleDNA) {
     // Try to compute from existing data
     const hairPassport = db.hairPassports?.find((p) => p.userId === identity.user.id);
-    const haircutHistory = db.haircutFeedback?.filter((h) => h.userId === identity.user.id) || [];
-
-    const computed = computeStyleDNA(haircutHistory, hairPassport, [], []);
+    const computed = computeStyleDNA(hairPassport);
     const now = new Date().toISOString();
 
     const newStyleDNA: StyleDNA = {

@@ -2,19 +2,6 @@
   return `रू ${amount.toLocaleString("en-NP")}`;
 }
 
-export function formatDate(dateString: string): string {
-  try {
-    const d = new Date(dateString);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateString;
-  }
-}
-
 export function getDaysSince(dateString: string | null): number | null {
   if (!dateString) return null;
   const visit = new Date(dateString);

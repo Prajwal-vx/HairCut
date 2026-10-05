@@ -25,8 +25,6 @@ const nextConfig: NextConfig = {
     ],
     formats: ["image/avif", "image/webp"],
   },
-  // Optimize font loading
-  optimizeFonts: true,
   // Enable React strict mode for better error detection
   reactStrictMode: true,
 };

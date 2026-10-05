@@ -1,8 +1,3 @@
-// Type declarations for modules that lack @types packages.
-// Note: jsonwebtoken, bcryptjs, and canvas-confetti all have @types packages
-// installed in devDependencies — no module declarations needed here.
-// This file is kept for any future untyped third-party modules.
-
 import "next-auth";
 
 declare module "next-auth" {

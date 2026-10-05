@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Scissors,
   Clipboard,
@@ -13,7 +12,6 @@ import {
   X,
   FileText,
   CheckCircle,
-  Camera,
   Sparkles,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
@@ -223,7 +221,7 @@ ${barberBrief.additionalNotes ? `NOTES\n${barberBrief.additionalNotes}` : ""}
           title: "My Barber Brief",
           text,
         });
-      } catch (err) {
+      } catch {
         // User cancelled or error
       }
     } else {

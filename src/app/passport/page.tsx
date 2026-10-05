@@ -7,12 +7,9 @@ import {
   Sparkles,
   Edit,
   Save,
-  Scissors,
-  ChevronRight,
   Shield,
   Clock,
   Star,
-  User,
   Camera,
   FileText,
   Award,
@@ -22,7 +19,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
 import { FadeIn } from "@/components/motion/FadeIn";
-import { LoadingSpinner, PageLoader } from "@/components/ui/LoadingSpinner";
+import { PageLoader } from "@/components/ui/LoadingSpinner";
 import { useAuth } from "@/context/AuthContext";
 import type { HairPassport, Stylist } from "@/lib/types";
 
