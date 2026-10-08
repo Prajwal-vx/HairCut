@@ -28,9 +28,12 @@ export async function POST(req: Request) {
     // Rate limiting based on IP and identifier
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
     const rateLimitKey = `${ip}:${identifier.trim().toLowerCase()}`;
+    const accountRateLimitKey = `login-account:${identifier.trim().toLowerCase()}`;
 
-    if (!checkRateLimit(rateLimitKey, 5, 60000)) {
-      const resetTime = getRateLimitResetTime(rateLimitKey);
+    const withinIpLimit = checkRateLimit(rateLimitKey, 5, 60000);
+    const withinAccountLimit = checkRateLimit(accountRateLimitKey, 10, 600000);
+    if (!withinIpLimit || !withinAccountLimit) {
+      const resetTime = getRateLimitResetTime(rateLimitKey) || getRateLimitResetTime(accountRateLimitKey);
       const retryAfter = resetTime ? Math.ceil((resetTime - Date.now()) / 1000) : 60;
       return NextResponse.json(
         { error: "Too many login attempts. Please try again later." },

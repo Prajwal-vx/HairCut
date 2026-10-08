@@ -4,6 +4,16 @@ import { validateOrigin } from "@/lib/auth";
 import { getRequestIdentity } from "@/lib/request-auth";
 import { BarberBrief, HairPassport } from "@/lib/types";
 
+function isAllowedReferenceImage(value: unknown): value is string {
+  if (typeof value !== "string" || value.length > 2048) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === "images.unsplash.com" && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
 function generateBarberBriefFromPassport(passport: HairPassport): Omit<BarberBrief, "id" | "userId" | "createdAt"> {
   const brief: Omit<BarberBrief, "id" | "userId" | "createdAt"> = {
     requestedStyle: passport.currentStyle,
@@ -88,6 +98,9 @@ export async function POST(req: Request) {
   }
 
   const now = new Date().toISOString();
+  if (body.referenceImageUrl !== undefined && body.referenceImageUrl !== "" && !isAllowedReferenceImage(body.referenceImageUrl)) {
+    return NextResponse.json({ error: "Reference images must use a supported HTTPS image URL." }, { status: 400 });
+  }
   const brief: BarberBrief = {
     id: "brief-" + Date.now(),
     userId: identity.user.id,
@@ -131,6 +144,10 @@ export async function PATCH(req: Request) {
   const idx = db.barberBriefs.findIndex((b) => b.userId === identity.user.id);
   if (idx === -1) {
     return NextResponse.json({ error: "No Barber Brief found. Please create one first." }, { status: 404 });
+  }
+
+  if (body.referenceImageUrl !== undefined && body.referenceImageUrl !== "" && !isAllowedReferenceImage(body.referenceImageUrl)) {
+    return NextResponse.json({ error: "Reference images must use a supported HTTPS image URL." }, { status: 400 });
   }
 
   const updated: BarberBrief = {

@@ -69,6 +69,17 @@ export async function POST(req: Request) {
     const cleanEmail = email.trim().toLowerCase();
     const cleanPhone = phone.trim().replace(/[^0-9]/g, "");
 
+    const emailAllowed = checkRateLimit(`register-email:${cleanEmail}`, 3, 3600000);
+    const phoneAllowed = checkRateLimit(`register-phone:${cleanPhone}`, 3, 3600000);
+    if (!emailAllowed || !phoneAllowed) {
+      const resetTime = getRateLimitResetTime(`register-email:${cleanEmail}`) || getRateLimitResetTime(`register-phone:${cleanPhone}`);
+      const retryAfter = resetTime ? Math.ceil((resetTime - Date.now()) / 1000) : 3600;
+      return NextResponse.json(
+        { error: "Too many registration attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": retryAfter.toString() } }
+      );
+    }
+
     if (cleanPhone.length < 7) {
       return NextResponse.json(
         { error: "Please provide a valid phone number (at least 7 digits)." },

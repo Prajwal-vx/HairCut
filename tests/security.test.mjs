@@ -18,15 +18,13 @@ test("legacy SHA-256 password hashes can be verified and reject incorrect passwo
   assert.equal(matchesLegacyPassword(password, "not-a-hash"), false);
 });
 
-test("production mutations require a matching HTTPS origin", () => {
+test("mutations require a matching origin in every environment", () => {
   assert.equal(isValidRequestOrigin("https://salon.example", "salon.example", "production"), true);
   assert.equal(isValidRequestOrigin(null, "salon.example", "production"), false);
   assert.equal(isValidRequestOrigin("https://attacker.example", "salon.example", "production"), false);
   assert.equal(isValidRequestOrigin("http://salon.example", "salon.example", "production"), false);
-});
-
-test("development keeps local cross-origin workflows available", () => {
-  assert.equal(isValidRequestOrigin(null, null, "development"), true);
+  assert.equal(isValidRequestOrigin("http://localhost:3000", "localhost:3000", "development"), true);
+  assert.equal(isValidRequestOrigin(null, "localhost:3000", "development"), false);
 });
 
 test("legacy demo users and only their related records are removed", () => {

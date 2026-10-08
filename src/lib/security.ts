@@ -5,10 +5,18 @@ export function isValidRequestOrigin(
   origin: string | null,
   host: string | null,
   environment: string | undefined,
+  configuredOrigin: string | undefined = process.env.APP_ORIGIN,
 ): boolean {
-  if (environment !== "production") return true;
   if (!origin || !host) return false;
-  return origin === `https://${host}`;
+  try {
+    const parsedOrigin = new URL(origin);
+    if (parsedOrigin.username || parsedOrigin.password || parsedOrigin.pathname !== "/" || parsedOrigin.search || parsedOrigin.hash) return false;
+    if (environment === "production" && parsedOrigin.protocol !== "https:") return false;
+    if (configuredOrigin) return parsedOrigin.origin === new URL(configuredOrigin).origin;
+    return parsedOrigin.host.toLowerCase() === host.toLowerCase();
+  } catch {
+    return false;
+  }
 }
 
 export function matchesLegacyPassword(password: string, hash: string): boolean {

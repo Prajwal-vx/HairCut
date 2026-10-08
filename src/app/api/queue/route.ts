@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { readDatabase, writeDatabase } from "@/lib/db";
 import { validateOrigin } from "@/lib/auth";
-import { getRequestIdentity } from "@/lib/request-auth";
+import { canManageSalon, getRequestIdentity } from "@/lib/request-auth";
 import { SalonDatabase, WalkInEntry, QueueStatus } from "@/lib/types";
 
 const VALID_STATUSES: QueueStatus[] = ["waiting", "in-service", "completed", "skipped", "left"];
+
+function canManageQueue(identity: Awaited<ReturnType<typeof getRequestIdentity>>): boolean {
+  return Boolean(identity && (identity.user.role === "STYLIST" || canManageSalon(identity)));
+}
 
 function calculateEstimatedWait(position: number): number {
   // Average service time is 20 minutes per person
@@ -34,7 +38,7 @@ export async function GET(req: Request) {
   updateQueuePositions(db);
 
   // Return full queue for staff, or user's entry for clients
-  if (identity.user.role === "ADMIN" || identity.user.role === "OWNER" || identity.user.role === "STYLIST") {
+  if (canManageQueue(identity)) {
     return NextResponse.json({ queue: db.walkInQueue });
   }
 
@@ -97,7 +101,7 @@ export async function PATCH(req: Request) {
   if (!identity) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   // Only staff can update queue entries
-  if (identity.user.role !== "ADMIN" && identity.user.role !== "OWNER" && identity.user.role !== "STYLIST") {
+  if (!canManageQueue(identity)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -167,12 +171,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: "Queue entry not found." }, { status: 404 });
   }
 
-  if (
-    identity.user.role !== "ADMIN" &&
-    identity.user.role !== "OWNER" &&
-    identity.user.role !== "STYLIST" &&
-    db.walkInQueue[idx].userId !== identity.user.id
-  ) {
+  if (!canManageQueue(identity) && db.walkInQueue[idx].userId !== identity.user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

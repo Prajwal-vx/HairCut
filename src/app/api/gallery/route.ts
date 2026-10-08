@@ -15,7 +15,7 @@ function isHttpUrl(value: unknown): value is string {
   if (typeof value !== "string" || value.length > 2048) return false;
   try {
     const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:";
+    return url.protocol === "https:" && url.hostname === "images.unsplash.com";
   } catch {
     return false;
   }
