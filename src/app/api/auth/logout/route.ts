@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { validateOrigin } from "@/lib/auth";
+import { env } from "@/config/env";
 
 export async function POST(req: Request) {
   if (!validateOrigin(req)) {
@@ -8,7 +9,7 @@ export async function POST(req: Request) {
   const response = NextResponse.json({ success: true });
   response.cookies.set("salon_token", "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.isProduction,
     path: "/",
     maxAge: 0,
     sameSite: "strict",

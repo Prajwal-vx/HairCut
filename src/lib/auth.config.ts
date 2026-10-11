@@ -1,24 +1,21 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { randomBytes } from "crypto";
+import { env } from "@/config/env";
 import { readDatabase, writeDatabase } from "./db";
 import { hashPassword } from "./auth";
 import { LoyaltyTransaction, User } from "./types";
 
 export function isAdminEmailWhitelisted(email: string | null | undefined): boolean {
   if (!email) return false;
-  const whitelist = (process.env.ADMIN_EMAIL_WHITELIST || "")
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-  return whitelist.includes(email.toLowerCase());
+  return env.adminEmailWhitelist.includes(email.toLowerCase());
 }
 
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: env.googleClientId || "",
+      clientSecret: env.googleClientSecret || "",
     }),
   ],
   callbacks: {
@@ -105,5 +102,5 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: { signIn: "/auth" },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: env.nextAuthSecret,
 };

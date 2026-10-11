@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { User, UserRole } from "./types";
 import { readDatabase } from "./db";
 import { isValidRequestOrigin, matchesLegacyPassword } from "./security";
+import { env } from "@/config/env";
 
 let _jwtSecret: string | null = null;
 
@@ -49,14 +50,15 @@ export function validateOrigin(req: Request): boolean {
   return isValidRequestOrigin(
     req.headers.get("origin"),
     req.headers.get("host"),
-    process.env.NODE_ENV,
+    env.NODE_ENV,
+    env.appOrigin || undefined
   );
 }
 
 function getJwtSecret(): string {
   if (_jwtSecret) return _jwtSecret;
 
-  const configured = process.env.JWT_SECRET?.trim();
+  const configured = env.jwtSecret?.trim();
   if (configured) {
     if (configured.length < 32) {
       throw new Error("JWT_SECRET must be at least 32 characters long.");
@@ -65,7 +67,7 @@ function getJwtSecret(): string {
     return _jwtSecret;
   }
 
-  if (process.env.NODE_ENV === "production") {
+  if (env.isProduction) {
     throw new Error("JWT_SECRET is required in production.");
   }
 

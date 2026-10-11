@@ -3,6 +3,7 @@ import { readDatabase, writeDatabase } from "@/lib/db";
 import { getSafeUser, hashPassword, signToken, checkRateLimit, getRateLimitResetTime, validateOrigin } from "@/lib/auth";
 import { matchesPhone } from "@/lib/security";
 import { User, LoyaltyTransaction } from "@/lib/types";
+import { env } from "@/config/env";
 
 export async function POST(req: Request) {
   try {
@@ -183,7 +184,7 @@ export async function POST(req: Request) {
 
     response.cookies.set("salon_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: env.isProduction,
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days to match token expiration
       sameSite: "strict", // Changed from lax to strict for better CSRF protection

@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { runAutomaticRemindersJob } from "@/lib/reminders";
 import { validateOrigin } from "@/lib/auth";
 import { canManageSalon, getRequestIdentity } from "@/lib/request-auth";
+import { env } from "@/config/env";
 
 export async function POST(req: Request) {
   const cronSecret = req.headers.get("x-cron-secret");
-  const configuredCronSecret = process.env.CRON_SECRET?.trim();
+  const configuredCronSecret = env.cronSecret?.trim();
   const isValidCronRequest = configuredCronSecret && cronSecret === configuredCronSecret;
   const identity = isValidCronRequest ? null : await getRequestIdentity(req);
   if (!isValidCronRequest && !canManageSalon(identity)) {

@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, User, Phone, Mail, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { authService } from "@/services/authService";
 import { salonBrand } from "@/lib/branding";
 
 function AuthForm() {
@@ -34,9 +36,8 @@ function AuthForm() {
     if (result.success) {
       // Check user role for proper destination
       try {
-        const res = await fetch("/api/auth/me", { credentials: "include" });
-        const data = await res.json();
-        if (data?.user?.role === "ADMIN" || data?.user?.role === "OWNER") {
+        const data = await authService.getMe();
+        if (data?.user?.role === "ADMIN" || data?.user?.role === "OWNER" || data?.user?.isAdmin) {
           router.push("/admin");
           return;
         }
@@ -68,8 +69,8 @@ function AuthForm() {
         {/* Logo */}
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full overflow-hidden border border-[#c5a880]/60 bg-[#c5a880]">
-              <img src={salonBrand.logoSrc} alt={`${salonBrand.name} logo`} className="w-full h-full object-cover" />
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border border-[#c5a880]/60 bg-[#c5a880]">
+              <Image src={salonBrand.logoSrc} alt={`${salonBrand.name} logo`} width={48} height={48} className="w-full h-full object-cover" />
             </div>
             <div className="text-left">
               <p className="text-white font-semibold text-xl" style={{ fontFamily: "'Cormorant Garamond', serif" }}>

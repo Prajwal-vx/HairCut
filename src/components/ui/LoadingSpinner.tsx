@@ -3,9 +3,10 @@ import React from "react";
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
   className?: string;
+  message?: string;
 }
 
-export function LoadingSpinner({ size = "md", className = "" }: LoadingSpinnerProps) {
+export function LoadingSpinner({ size = "md", className = "", message }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: "w-4 h-4 border-2",
     md: "w-8 h-8 border-2",
@@ -13,7 +14,10 @@ export function LoadingSpinner({ size = "md", className = "" }: LoadingSpinnerPr
   };
 
   return (
-    <div className={`border-[#c5a880] border-t-transparent rounded-full animate-spin ${sizeClasses[size]} ${className}`} />
+    <div className="flex flex-col items-center justify-center gap-3">
+      <div className={`border-[#c5a880] border-t-transparent rounded-full animate-spin ${sizeClasses[size]} ${className}`} />
+      {message && <p className="text-xs text-stone-400 font-medium">{message}</p>}
+    </div>
   );
 }
 

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
 import { salonBrand } from "@/lib/branding";
 
@@ -11,8 +12,8 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-[#c5a880]/60 bg-[#c5a880]">
-                <img src={salonBrand.logoSrc} alt={`${salonBrand.name} logo`} className="w-full h-full object-cover" />
+              <div className="relative w-10 h-10 rounded-full overflow-hidden border border-[#c5a880]/60 bg-[#c5a880]">
+                <Image src={salonBrand.logoSrc} alt={`${salonBrand.name} logo`} width={40} height={40} className="w-full h-full object-cover" />
               </div>
               <div>
                 <p className="text-white font-semibold text-base">

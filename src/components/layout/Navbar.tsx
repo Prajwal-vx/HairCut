@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Scissors, Bell, User, ChevronDown, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -64,8 +65,8 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-[#c5a880]/60 bg-[#c5a880] transform group-hover:rotate-3 transition-transform duration-300 shadow-lg shadow-black/20">
-                <img src={salonBrand.logoSrc} alt={`${salonBrand.name} logo`} className="w-full h-full object-cover" />
+              <div className="relative w-10 h-10 rounded-full overflow-hidden border border-[#c5a880]/60 bg-[#c5a880] transform group-hover:rotate-3 transition-transform duration-300 shadow-lg shadow-black/20">
+                <Image src={salonBrand.logoSrc} alt={`${salonBrand.name} logo`} width={40} height={40} className="w-full h-full object-cover" />
               </div>
               <div>
                 <span className="text-white font-display text-base sm:text-lg font-semibold tracking-wide leading-tight block">
@@ -151,9 +152,9 @@ export default function Navbar() {
                       aria-label="Open account menu"
                       className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border border-[#2e2b26] hover:border-[#c5a880] transition-colors"
                     >
-                      <div className="w-7 h-7 rounded-full bg-[#c5a880] overflow-hidden flex items-center justify-center">
+                      <div className="relative w-7 h-7 rounded-full bg-[#c5a880] overflow-hidden flex items-center justify-center">
                         {user.profilePhotoUrl ? (
-                          <img src={user.profilePhotoUrl} alt={user.fullName} className="w-full h-full object-cover" />
+                          <Image src={user.profilePhotoUrl} alt={user.fullName} width={28} height={28} className="w-full h-full object-cover" />
                         ) : (
                           <User className="w-4 h-4 text-[#141312]" />
                         )}

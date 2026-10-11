@@ -1,11 +1,13 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Star, Scissors, Award } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
 import { FadeIn } from "@/components/motion/FadeIn";
+import { salonService } from "@/services/salonService";
 import type { Stylist } from "@/lib/types";
 
 export default function StylistsPage() {
@@ -13,7 +15,22 @@ export default function StylistsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/stylists").then((r) => r.json()).then((d) => { setStylists(d.stylists || []); setLoading(false); });
+    let cancelled = false;
+    salonService
+      .getStylists()
+      .then((d) => {
+        if (!cancelled) {
+          setStylists(d.stylists || []);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -43,7 +60,7 @@ export default function StylistsPage() {
                 <FadeIn key={stylist.id} delay={i * 0.1}>
                   <div className="group glass-card glass-card-hover rounded-3xl overflow-hidden text-center">
                     <div className="relative h-72 overflow-hidden">
-                      <img src={stylist.photoUrl} alt={stylist.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <Image fill sizes="(max-width: 768px) 100vw, 25vw" src={stylist.photoUrl} alt={stylist.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b]/80 via-transparent to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4">
                         <p className="text-white font-bold text-lg" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{stylist.name}</p>

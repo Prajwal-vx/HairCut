@@ -2,12 +2,14 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { Clock, Scissors, Search } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { formatCurrency } from "@/lib/utils";
+import { salonService } from "@/services/salonService";
 import type { Service, ServiceCategory } from "@/lib/types";
 
 const categories: (ServiceCategory | "All")[] = ["All", "Short Cuts", "Long Cuts", "Color", "Styling", "Beard Trim", "Treatments"];
@@ -19,7 +21,22 @@ export default function ServicesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/services").then((r) => r.json()).then((d) => { setServices(d.services || []); setLoading(false); });
+    let cancelled = false;
+    salonService
+      .getServices()
+      .then((d) => {
+        if (!cancelled) {
+          setServices(d.services || []);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = services.filter((s) => {
@@ -95,7 +112,7 @@ export default function ServicesPage() {
                   <motion.div key={service.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: i * 0.06 }}>
                     <div className="group glass-card glass-card-hover rounded-2xl overflow-hidden h-full flex flex-col">
                       <div className="relative h-48 overflow-hidden">
-                        <img src={service.image} alt={service.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                        <Image fill sizes="(max-width: 768px) 100vw, 33vw" src={service.image} alt={service.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b] via-transparent to-transparent" />
                         {service.popular && (
                           <span className="absolute top-3 left-3 bg-[#c86d51] text-white text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Popular</span>
