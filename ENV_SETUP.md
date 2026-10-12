@@ -63,3 +63,6 @@ ADMIN_EMAIL_WHITELIST=admin@example.com,owner@example.com
 - Rotate secrets periodically
 - In production, use HTTPS and proper domain configuration
 - Only add trusted email addresses to ADMIN_EMAIL_WHITELIST
+# Public salon contact
+
+Set `NEXT_PUBLIC_CONTACT_EMAIL` only after confirming the address the salon wants to publish. When it is empty, the site hides email links and the contact page directs visitors to call instead.

@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-4">
+            <Link href="/" aria-label={`${salonBrand.name} home`} className="flex items-center gap-3 mb-4 w-fit">
               <div className="relative w-10 h-10 rounded-full overflow-hidden border border-[#c5a880]/60 bg-[#c5a880]">
                 <Image src={salonBrand.logoSrc} alt={`${salonBrand.name} logo`} width={40} height={40} className="w-full h-full object-cover" />
               </div>
@@ -21,7 +21,7 @@ export default function Footer() {
                 </p>
                 <p className="text-[#c5a880] text-xs tracking-widest uppercase">{salonBrand.location}</p>
               </div>
-            </div>
+            </Link>
             <p className="text-[#78716c] text-sm leading-relaxed">
               Boutique barbershop meets modern salon. Crafting confidence, one cut at a time — for everyone.
             </p>
@@ -74,10 +74,11 @@ export default function Footer() {
               </div>
               <div className="flex gap-2">
                 <Phone className="w-4 h-4 text-[#c5a880] flex-shrink-0 mt-0.5" />
-                <a href="tel:+9779808087574" className="hover:text-[#c5a880] transition-colors">
-                  +977 980-8087574
+                <a href={`tel:${salonBrand.phone}`} className="hover:text-[#c5a880] transition-colors">
+                  {salonBrand.phoneDisplay}
                 </a>
               </div>
+              {salonBrand.contactEmail && <a href={`mailto:${salonBrand.contactEmail}`} className="break-all hover:text-[#c5a880] transition-colors">{salonBrand.contactEmail}</a>}
             </div>
             <div className="mt-4">
               <a
@@ -98,7 +99,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-[#2e2b26] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[#4a4540] text-xs">
-            © 2026 Uptown Hair Unisex Salon, Birtamode. All rights reserved.
+            © {new Date().getFullYear()} {salonBrand.name}, Birtamode. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link href="/auth" className="text-[#4a4540] hover:text-[#c5a880] text-xs transition-colors">

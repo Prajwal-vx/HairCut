@@ -118,7 +118,7 @@ function AuthForm() {
                       type="text"
                       value={loginForm.identifier}
                       onChange={(e) => setLoginForm({ ...loginForm, identifier: e.target.value })}
-                      placeholder="98XXXXXXXX or email@gmail.com"
+                      autoComplete="username"
                       className="w-full bg-[#141312] border border-[#2e2b26] rounded-xl py-3 pl-10 pr-4 text-[#e0d8cd] placeholder-[#4a4540] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
                       required
                     />
@@ -132,7 +132,7 @@ function AuthForm() {
                       type={showPassword ? "text" : "password"}
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                      placeholder="Your password"
+                      autoComplete="current-password"
                       className="w-full bg-[#141312] border border-[#2e2b26] rounded-xl py-3 pl-10 pr-10 text-[#e0d8cd] placeholder-[#4a4540] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
                       required
                     />
@@ -164,7 +164,7 @@ function AuthForm() {
                       type="text"
                       value={regForm.fullName}
                       onChange={(e) => setRegForm({ ...regForm, fullName: e.target.value })}
-                      placeholder="Ramesh Thapa"
+                      autoComplete="name"
                       className="w-full bg-[#141312] border border-[#2e2b26] rounded-xl py-3 pl-10 pr-4 text-[#e0d8cd] placeholder-[#4a4540] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
                       required
                     />
@@ -178,7 +178,7 @@ function AuthForm() {
                       type="tel"
                       value={regForm.phone}
                       onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
-                      placeholder="98XXXXXXXX"
+                      autoComplete="tel"
                       className="w-full bg-[#141312] border border-[#2e2b26] rounded-xl py-3 pl-10 pr-4 text-[#e0d8cd] placeholder-[#4a4540] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
                       required
                     />
@@ -192,7 +192,7 @@ function AuthForm() {
                       type="email"
                       value={regForm.email}
                       onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
-                      placeholder="email@gmail.com"
+                      autoComplete="email"
                       className="w-full bg-[#141312] border border-[#2e2b26] rounded-xl py-3 pl-10 pr-4 text-[#e0d8cd] placeholder-[#4a4540] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
                       required
                     />
@@ -206,7 +206,7 @@ function AuthForm() {
                       type={showPassword ? "text" : "password"}
                       value={regForm.password}
                       onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
-                      placeholder="Create a password"
+                      autoComplete="new-password"
                       className="w-full bg-[#141312] border border-[#2e2b26] rounded-xl py-3 pl-10 pr-10 text-[#e0d8cd] placeholder-[#4a4540] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
                       required
                     />

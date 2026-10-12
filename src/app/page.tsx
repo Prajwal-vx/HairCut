@@ -1,7 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import HomeTestimonials from "@/app/home-testimonials";
 import { Scissors, ChevronRight, Sparkles, Compass } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -11,32 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { formatCurrency } from "@/lib/utils";
 import type { GalleryPhoto } from "@/lib/types";
 
-const heroImages = [
-  "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1920&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=1920&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1560869713-7d0a29430803?w=1920&auto=format&fit=crop&q=80",
-];
-
-const testimonials = [
-  {
-    name: "Ramesh K.",
-    rating: 5,
-    text: "Aarav gave me the sharpest fade I have ever had. Been coming every 5 weeks without fail — my Style Streak is at 6 now! The bonus points are a great touch.",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Sunita R.",
-    rating: 5,
-    text: "Priya is an absolute artist with colour. The balayage she did for my wedding looked stunning in every photo. The salon atmosphere is so warm and welcoming.",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Dinesh T.",
-    rating: 5,
-    text: "The 35-day reminder is incredibly thoughtful. Never miss a trim now. Love the loyalty streak — just unlocked a free beard trim on my 4th visit!",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&auto=format&fit=crop&q=80",
-  },
-];
+const heroImage = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1600&auto=format&fit=crop&q=75";
 
 const serviceHighlights = [
   { name: "Precision Barber Cut", category: "Short Cuts", price: 450, icon: "✂️", image: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&auto=format&fit=crop&q=80" },
@@ -46,21 +23,9 @@ const serviceHighlights = [
 ];
 
 export default function HomePage() {
-  const [heroIndex, setHeroIndex] = useState(0);
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [homePhotos, setHomePhotos] = useState<GalleryPhoto[]>([]);
   const { user } = useAuth();
   const isOwner = user?.role === "OWNER";
-
-  useEffect(() => {
-    const t = setInterval(() => setHeroIndex((i) => (i + 1) % heroImages.length), 5000);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    const t = setInterval(() => setActiveTestimonial((i) => (i + 1) % testimonials.length), 6000);
-    return () => clearInterval(t);
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -86,14 +51,11 @@ export default function HomePage() {
       <main className="pb-24 lg:pb-0">
 
         {/* HERO */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.div key={heroIndex} initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 1.2 }} className="absolute inset-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={heroImages[heroIndex]} alt="Salon" className="w-full h-full object-cover" />
+        <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0">
+              <Image src={heroImage} alt="Salon" fill priority sizes="100vw" quality={75} className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-b from-[#0d0c0b]/60 via-[#0d0c0b]/30 to-[#0d0c0b]" />
-            </motion.div>
-          </AnimatePresence>
+          </div>
 
           <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pt-32">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}>
@@ -114,10 +76,10 @@ export default function HomePage() {
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/book" className="flex items-center gap-3 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-8 py-4 rounded-xl font-bold text-base transition-all duration-300 shadow-xl shadow-[#c5a880]/30 hover:-translate-y-0.5">
+              <Link href="/book" className="flex w-full sm:w-auto items-center justify-center gap-3 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-5 sm:px-8 py-4 rounded-xl font-bold text-base transition-all duration-300 shadow-xl shadow-[#c5a880]/30 hover:-translate-y-0.5">
                 <Scissors className="w-5 h-5" /> Book Your Appointment
               </Link>
-              <Link href="/consultation" className="flex items-center gap-2 border border-[#c5a880]/60 hover:border-[#c5a880] text-[#f3efe6] px-8 py-4 rounded-xl font-medium text-base transition-all duration-200 bg-[#1a1816]/80 hover:bg-[#c5a880]/15">
+              <Link href="/consultation" className="flex w-full sm:w-auto items-center justify-center gap-2 border border-[#c5a880]/60 hover:border-[#c5a880] text-[#f3efe6] px-5 sm:px-8 py-4 rounded-xl font-medium text-base transition-all duration-200 bg-[#1a1816]/80 hover:bg-[#c5a880]/15">
                 <Compass className="w-4 h-4 text-[#c5a880]" /> Face Shape Quiz <ChevronRight className="w-4 h-4" />
               </Link>
             </motion.div>
@@ -162,8 +124,7 @@ export default function HomePage() {
               <FadeIn key={s.name} delay={i * 0.1}>
                 <div className="group glass-card glass-card-hover rounded-2xl overflow-hidden">
                   <div className="relative h-52 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.image} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <Image src={s.image} alt={s.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" quality={72} className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b] via-transparent to-transparent" />
                     <span className="absolute top-3 left-3 text-2xl">{s.icon}</span>
                     <span className="absolute top-3 right-3 bg-[#c5a880]/20 text-[#c5a880] text-xs px-2 py-1 rounded-full border border-[#c5a880]/30">{s.category}</span>
@@ -357,12 +318,13 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     className={`group relative rounded-2xl overflow-hidden border border-[#2e2b26] bg-[#141312] ${colSpanClass}`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={photo.imageUrl}
                       alt={photo.caption}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      quality={70}
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b]/90 via-[#0d0c0b]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
@@ -389,45 +351,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* TESTIMONIALS */}
-        <section className="py-24 px-4 max-w-5xl mx-auto">
-          <FadeIn className="text-center mb-12">
-            <span className="text-[#c5a880] text-xs font-semibold tracking-[0.25em] uppercase">Client Love</span>
-            <h2 className="text-4xl font-bold text-white mt-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Stories from Birtamode</h2>
-          </FadeIn>
-          <div className="relative min-h-[220px]">
-            <AnimatePresence mode="wait">
-              <motion.div key={activeTestimonial} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.5 }} className="glass-card rounded-2xl p-8">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonials[activeTestimonial].rating)].map((_, i) => (
-                    <span key={i} className="text-[#c5a880]">★</span>
-                  ))}
-                </div>
-                <p className="text-[#d0c8be] text-lg leading-relaxed italic mb-6">
-                  &ldquo;{testimonials[activeTestimonial].text}&rdquo;
-                </p>
-                <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={testimonials[activeTestimonial].avatar} alt={testimonials[activeTestimonial].name} className="w-10 h-10 rounded-full object-cover border-2 border-[#c5a880]/30" />
-                  <div>
-                    <p className="text-white font-semibold text-sm">{testimonials[activeTestimonial].name}</p>
-                    <p className="text-[#78716c] text-xs">Verified Client — Birtamode</p>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-            <div className="flex justify-center gap-2 mt-4">
-              {testimonials.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveTestimonial(i)}
-                  aria-label={`Show testimonial ${i + 1}`}
-                  className={`h-1.5 rounded-full transition-all ${i === activeTestimonial ? "w-8 bg-[#c5a880]" : "w-2 bg-[#2e2b26]"}`}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
+        <HomeTestimonials />
 
         {/* LOCATION TEASER */}
         <section className="py-20 px-4">
@@ -447,8 +371,7 @@ export default function HomePage() {
                 </FadeIn>
               </div>
               <div className="relative h-64 md:h-auto">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&auto=format&fit=crop&q=80" alt="Salon" className="w-full h-full object-cover" />
+                <Image src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&auto=format&fit=crop&q=75" alt="Salon" fill sizes="(max-width: 768px) 100vw, 50vw" quality={72} className="object-cover" />
               </div>
             </div>
           </div>
@@ -462,7 +385,7 @@ export default function HomePage() {
                 Ready for Your <span className="text-gold-gradient">Transformation?</span>
               </h2>
               <p className="text-[#78716c] text-lg mb-8 max-w-xl mx-auto">Book in seconds. Walk out confident. Come back in 35 days to keep your Style Streak alive.</p>
-              <Link href="/book" className="inline-flex items-center gap-3 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 shadow-2xl shadow-[#c5a880]/30 hover:-translate-y-1">
+              <Link href="/book" className="inline-flex items-center justify-center gap-3 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-6 sm:px-10 py-5 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 shadow-2xl shadow-[#c5a880]/30 hover:-translate-y-1">
                 <Scissors className="w-6 h-6" /> Book Your Appointment
               </Link>
             </div>

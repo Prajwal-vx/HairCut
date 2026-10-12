@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Scissors, Bell, User, ChevronDown, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useNotifications } from "@/context/NotificationContext";
 import { salonBrand } from "@/lib/branding";
 
 const navLinks = [
@@ -17,37 +18,19 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
-type Notification = {
-  id: string;
-  type: string;
-  status: string;
-  message: string;
-  sentAt: string;
-};
-
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const { user, logout } = useAuth();
+  const { notifications, unreadCount } = useNotifications();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler);
     return () => window.removeEventListener("scroll", handler);
   }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetch("/api/notifications", { credentials: "include" })
-        .then((r) => r.json())
-        .then((d) => setNotifications(d.notifications || []));
-    }
-  }, [user]);
-
-  const unreadCount = notifications.filter((n) => n.status !== "read").length;
 
   return (
     <>
@@ -219,6 +202,8 @@ export default function Navbar() {
             {/* Mobile menu toggle */}
             <button
               aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={isOpen}
+              aria-controls="mobile-navigation"
               className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-[#2e2b26]"
               onClick={() => setIsOpen(!isOpen)}
             >
@@ -236,6 +221,7 @@ export default function Navbar() {
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
               className="lg:hidden overflow-hidden bg-[#141312] border-t border-[#2e2b26]"
+              id="mobile-navigation"
             >
               <div className="px-4 py-6 space-y-4">
                 {navLinks.map((link) => (

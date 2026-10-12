@@ -17,18 +17,19 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<NotificationLog[]>([]);
+  const [notificationState, setNotificationState] = useState<{ userId: string | null; items: NotificationLog[] }>({ userId: null, items: [] });
+  const notifications = user && notificationState.userId === user.id ? notificationState.items : [];
   const [loading, setLoading] = useState(false);
 
   const refreshNotifications = useCallback(async () => {
     if (!user) {
-      setNotifications([]);
+      setNotificationState({ userId: null, items: [] });
       return;
     }
     try {
       setLoading(true);
       const res = await notificationService.getNotifications();
-      setNotifications(res.notifications || []);
+      setNotificationState({ userId: user.id, items: Array.isArray(res.notifications) ? res.notifications : [] });
     } catch {
       // Graceful fallback for offline / errors
     } finally {
@@ -38,7 +39,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (!user) {
-      setNotifications([]);
       return;
     }
 
@@ -47,7 +47,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       .getNotifications()
       .then((res) => {
         if (!isCancelled) {
-          setNotifications(res.notifications || []);
+          setNotificationState({ userId: user.id, items: Array.isArray(res.notifications) ? res.notifications : [] });
         }
       })
       .catch(() => {
@@ -62,9 +62,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const markAsRead = useCallback(async (id: string) => {
     try {
       await notificationService.markAsRead(id);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, status: "read" } : n))
-      );
+      setNotificationState((state) => ({
+        ...state,
+        items: state.items.map((notification) => notification.id === id ? { ...notification, status: "read" } : notification),
+      }));
     } catch {
       // Ignored
     }

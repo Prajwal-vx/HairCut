@@ -19,16 +19,17 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Unisex Haircut — Birtamode, Nepal",
+  title: { default: "Uptown Hair Unisex Salon — Birtamode, Nepal", template: "%s | Uptown Hair" },
   description:
     "Premium unisex salon at Ratan Complex, Bhadrapur Bus Stand, Birtamode, Nepal. Book appointments, explore our services, and enjoy the Style Streak loyalty program.",
   keywords: ["hair salon", "barber", "Birtamode", "Nepal", "unisex haircut", "Bhadrapur"],
   openGraph: {
-    title: "Unisex Haircut Birtamode",
+    title: "Uptown Hair Unisex Salon — Birtamode, Nepal",
     description: "Boutique barbershop meets modern salon — where every cut tells a story.",
     locale: "en_US",
     type: "website",
   },
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

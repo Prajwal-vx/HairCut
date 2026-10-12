@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Uptown Hair Unisex Salon
 
-## Getting Started
+Appointment and salon management website for Uptown Hair in Birtamode, Nepal. Built with Next.js App Router, React, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## Local development
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Install dependencies with `npm install`.
+2. Copy `.env.example` to `.env.local` and set the required secrets and service credentials.
+3. Start the app with `npm run dev` and open `http://localhost:3000`.
+
+Available scripts: `npm run dev`, `npm run build`, `npm run start`, `npm run lint`, and `npm run security:test`.
+
+## Project structure
+
+```text
+src/
+  app/                 App Router pages, route metadata, error and not-found UI
+    api/               HTTP route handlers, grouped by resource
+  components/          Reusable UI, layout, booking, motion and provider components
+  config/              Validated environment configuration
+  constants/           Shared salon and domain constants
+  context/             App-wide authentication, toast and notification state
+  hooks/               Reusable client workflows and stateful behavior
+  lib/                 API helpers, data access, security, metadata and utilities
+  modules/             Feature-specific UI and domain logic
+  services/            Typed clients for application API resources
+  types/               Shared TypeScript declarations
+data/                  Local JSON database files
+public/                Static assets served from the site root
+tests/                 Existing security checks
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Application boundaries
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Keep route files focused on composing a page or accepting an HTTP request.
+- Put reusable visual building blocks in `src/components`; group feature-specific UI and domain calculations in `src/modules`.
+- Put browser-side workflows in `src/hooks`, shared state in `src/context`, and API calls in `src/services`.
+- Put validation, response shaping, and reusable server logic in `src/lib`. API routes should validate input and identity, then delegate work to a service or domain helper.
+- Keep secrets and server-only settings in `src/config/env.ts`. Only intentionally public settings may use the `NEXT_PUBLIC_` prefix.
+- New routes should follow the resource pattern under `src/app/api/<resource>/route.ts`; use `src/lib/api/handler.ts` and `src/lib/api/response.ts` when standard request protection and error responses apply.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment configuration
 
-## Learn More
+`.env.example` is the configuration template. Never commit `.env.local` or real credentials. `JWT_SECRET` must be at least 32 characters in production. Google OAuth and cron credentials are optional unless those integrations are enabled. `NEXT_PUBLIC_CONTACT_EMAIL` is optional; set it to the salon's confirmed public email to enable email links and the contact form's email-draft action.
 
-To learn more about Next.js, take a look at the following resources:
+See [ENV_SETUP.md](ENV_SETUP.md) for the complete variable descriptions and deployment guidance.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Operational notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The current data adapter stores records as local JSON under `data/`. This works for a single persistent local/server instance; deployments that use ephemeral or horizontally scaled compute should move the adapter to a shared database before relying on writes. Do not put credentials or private customer data in public assets or browser configuration.

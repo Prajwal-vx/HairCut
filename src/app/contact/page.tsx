@@ -1,23 +1,29 @@
 ﻿"use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Clock, Phone, Send, CheckCircle } from "lucide-react";
+import { MapPin, Clock, Phone, Send, CheckCircle, Mail } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
 import { FadeIn } from "@/components/motion/FadeIn";
+import { salonBrand } from "@/lib/branding";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSending(true);
-    await new Promise((r) => setTimeout(r, 1000));
+    setError("");
+    if (!salonBrand.contactEmail) {
+      setError("Email contact is not configured yet. Please call us using the number shown here.");
+      return;
+    }
+    const subject = encodeURIComponent(`Website inquiry from ${form.name}`);
+    const body = encodeURIComponent(`${form.message}\n\nPhone: ${form.phone}\nEmail: ${form.email || "Not provided"}`);
+    window.location.href = `mailto:${salonBrand.contactEmail}?subject=${subject}&body=${body}`;
     setSent(true);
-    setSending(false);
   };
 
   return (
@@ -86,8 +92,9 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="text-white font-semibold mb-1">Phone / WhatsApp</h3>
-                      <a href="tel:+9779801234567" className="text-[#c5a880] hover:underline">+977-9801234567 / 9841234567</a>
+                      <a href={`tel:${salonBrand.phone}`} className="text-[#c5a880] hover:underline">{salonBrand.phoneDisplay}</a>
                       <p className="text-[#78716c] text-xs mt-1">Direct inquiries, wedding party packages, or corporate bookings.</p>
+                      {salonBrand.contactEmail && <a href={`mailto:${salonBrand.contactEmail}`} className="mt-2 inline-flex items-center gap-2 text-sm text-[#c5a880] hover:underline"><Mail className="h-4 w-4" />{salonBrand.contactEmail}</a>}
                     </div>
                   </div>
                 </div>
@@ -119,8 +126,8 @@ export default function ContactPage() {
                 {sent ? (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12">
                     <CheckCircle className="w-16 h-16 text-[#c5a880] mx-auto mb-4" />
-                    <h3 className="text-white text-2xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Message Sent!</h3>
-                    <p className="text-[#78716c]">We will get back to you within a few hours. Thank you for reaching out!</p>
+                    <h3 className="text-white text-2xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Email draft opened</h3>
+                    <p className="text-[#78716c]">Review and send the prepared email in your email app to complete your inquiry.</p>
                     <button onClick={() => setSent(false)} className="mt-6 text-[#c5a880] text-sm hover:underline">Send another message</button>
                   </motion.div>
                 ) : (
@@ -130,7 +137,6 @@ export default function ContactPage() {
                       <label className="block text-[#b0a090] text-sm font-medium mb-2">Full Name</label>
                       <input
                         type="text"
-                        placeholder="Ramesh Thapa"
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
                         required
@@ -141,7 +147,6 @@ export default function ContactPage() {
                       <label className="block text-[#b0a090] text-sm font-medium mb-2">Phone / WhatsApp</label>
                       <input
                         type="tel"
-                        placeholder="+977-98XXXXXXXX"
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
                         required
@@ -152,7 +157,6 @@ export default function ContactPage() {
                       <label className="block text-[#b0a090] text-sm font-medium mb-2">Email (optional)</label>
                       <input
                         type="email"
-                        placeholder="ramesh@gmail.com"
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
                         className="w-full bg-[#141312] border border-[#2e2b26] rounded-xl py-3 px-4 text-[#e0d8cd] placeholder-[#4a4540] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
@@ -171,12 +175,13 @@ export default function ContactPage() {
                     </div>
                     <button
                       type="submit"
-                      disabled={sending}
                       className="w-full flex items-center justify-center gap-3 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] py-4 rounded-xl font-bold text-base transition-all disabled:opacity-70"
                     >
-                      {sending ? <span className="animate-spin">⏳</span> : <Send className="w-5 h-5" />}
-                      {sending ? "Sending..." : "Send Message"}
+                      <Send className="w-5 h-5" />
+                      Open Email App
                     </button>
+                    {!salonBrand.contactEmail && <p role="status" className="text-center text-sm text-[#c5a880]">Email contact is not configured. Please call us instead.</p>}
+                    {error && <p role="alert" className="text-center text-sm text-[#f29a7e]">{error}</p>}
                   </form>
                 )}
               </div>
