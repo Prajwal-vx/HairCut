@@ -41,7 +41,7 @@ function DashboardContent() {
   const copyReferral = () => {
     if (!user) return;
     navigator.clipboard?.writeText(
-      `Join Unisex Haircut, Birtamode with my referral code ${user.referralCode} and get 25 bonus loyalty points on your first appointment!`
+      `Join Uptown Hair, Birtamode with my referral code ${user.referralCode} and get 25 bonus loyalty points on your first appointment!`
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -121,7 +121,7 @@ function DashboardContent() {
                     <div>
                       <p className="text-[#f0d0c0] font-bold text-base">Time for a Fresh Look!</p>
                       <p className="text-[#c86d51] text-sm mt-0.5">
-                        It has been {daysSince} days since your last cut at Unisex Haircut. Book within {streakInfo.daysRemainingInWindow} days to keep your Style Streak alive!
+                        It has been {daysSince} days since your last cut at Uptown Hair. Book within {streakInfo.daysRemainingInWindow} days to keep your Style Streak alive!
                       </p>
                     </div>
                   </div>
@@ -229,7 +229,7 @@ function DashboardContent() {
               <FadeIn delay={0.15}>
                 <div className="glass-card rounded-2xl p-6">
                   <h2 className="text-lg font-bold text-white mb-2">Your Style Journey</h2>
-                  <p className="text-[#78716c] text-xs mb-6">Chronological timeline of past visits and services at Unisex Haircut.</p>
+                  <p className="text-[#78716c] text-xs mb-6">Chronological timeline of past visits and services at Uptown Hair.</p>
 
                   {completed.length === 0 ? (
                     <p className="text-[#78716c] text-sm py-4">

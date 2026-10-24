@@ -121,7 +121,7 @@ export async function POST(req: Request) {
         userId: newUserId,
         pointsEarned: 50,
         pointsRedeemed: 0,
-        reason: "Welcome to Unisex Haircut Birtamode Bonus",
+        reason: "Welcome to Uptown Hair Birtamode Bonus",
         createdAt: new Date().toISOString(),
       },
     ];

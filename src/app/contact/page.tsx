@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Clock, Phone, Send, CheckCircle, Mail } from "lucide-react";
@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { salonBrand } from "@/lib/branding";
+import Link from "next/link";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "" });
@@ -109,7 +110,7 @@ export default function ContactPage() {
                     <MapPin className="w-4 h-4 text-[#c5a880]" /> Interactive Map Teaser
                   </h3>
                   <div className="w-full h-48 bg-[#141312] rounded-xl flex flex-col items-center justify-center border border-[#2e2b26] p-4 text-center">
-                    <p className="text-white font-bold mb-1">Unisex Haircut Salon</p>
+                    <p className="text-white font-bold mb-1">Uptown Hair Salon</p>
                     <p className="text-[#78716c] text-xs mb-3">Ratan Complex, Bhadrapur Bus Stand, Birtamode, Jhapa, Nepal</p>
                     <a
                       href="https://www.google.com/maps/search/?api=1&query=Bhadrapur+Bus+Stand+Birtamode+Nepal"
@@ -185,7 +186,7 @@ export default function ContactPage() {
                       <Send className="w-5 h-5" />
                       {sending ? "Sending..." : "Send Message"}
                     </button>
-                    <p className="text-center text-xs text-[#78716c]">Messages are sent securely to the salon. See our <a className="underline hover:text-[#c5a880]" href="/privacy">Privacy Policy</a>.</p>
+                    <p className="text-center text-xs text-[#78716c]">Messages are sent securely to the salon. See our <Link className="underline hover:text-[#c5a880]" href="/privacy">Privacy Policy</Link>.</p>
                     {error && <p role="alert" className="text-center text-sm text-[#f29a7e]">{error}</p>}
                   </form>
                 )}

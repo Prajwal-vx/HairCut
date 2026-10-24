@@ -120,7 +120,7 @@ export function generateBarberBriefText(
   answers: DiscoverAnswers
 ): string {
   return [
-    "BARBER BRIEF — UNISEX HAIRCUT",
+    "BARBER BRIEF — UPTOWN HAIR",
     `Requested style: ${rec.name}`,
     `Current length: ${answers.hairLength.replace("-", " ")}`,
     `Hair texture: ${answers.hairTexture}`,

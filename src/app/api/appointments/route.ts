@@ -111,7 +111,7 @@ export async function POST(req: Request) {
     type: "booking_confirmed",
     channel: "app",
     status: "delivered",
-    message: `Your appointment for ${service.name} on ${visitDate} at ${timeSlot} has been confirmed. We look forward to seeing you at Unisex Haircut, Birtamode! 💈`,
+    message: `Your appointment for ${service.name} on ${visitDate} at ${timeSlot} has been confirmed. We look forward to seeing you at Uptown Hair, Birtamode! 💈`,
     sentAt: new Date().toISOString(),
   });
 

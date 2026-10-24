@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from "react";
 import Link from "next/link";
 import { Scissors } from "lucide-react";
@@ -8,7 +8,7 @@ import MobileBookBar from "@/components/layout/MobileBookBar";
 import { FadeIn, AnimatedCounter } from "@/components/motion/FadeIn";
 
 const timeline = [
-  { year: "2023", title: "Doors Open", desc: "Unisex Haircut launched at Ratan Complex, Bhadrapur Bus Stand, Birtamode with 2 stylists and a clear vision for inclusive, premium grooming." },
+  { year: "2023", title: "Doors Open", desc: "Uptown Hair launched at Ratan Complex, Bhadrapur Bus Stand, Birtamode with 2 stylists and a clear vision for inclusive, premium grooming." },
   { year: "2024", title: "Team Expands", desc: "Welcomed specialists Rohan (texture cuts) and Anita (scalp therapy). Introduced luxe colour services and premium treatment menu." },
   { year: "2025", title: "Digital Booking Launch", desc: "Launched online appointment booking, the Style Streak loyalty system, and the 35-day automated grooming reminder for our growing community." },
   { year: "2026", title: "2,000 Happy Clients", desc: "Celebrating our community milestone. Full-service premium salon experience available for every person, every hair type, every style." },
@@ -36,7 +36,7 @@ export default function AboutPage() {
                 Born in Birtamode,<br /><span className="text-gold-gradient">Built for Everyone</span>
               </h1>
               <p className="text-[#b0a090] text-xl max-w-2xl leading-relaxed">
-                Unisex Haircut started with a simple belief: great hair knows no gender. We set up shop at Ratan Complex to serve every person who walks through our door with equal care, skill, and warmth.
+                Uptown Hair started with a simple belief: great hair knows no gender. We set up shop at Ratan Complex to serve every person who walks through our door with equal care, skill, and warmth.
               </p>
             </FadeIn>
           </div>
@@ -101,7 +101,7 @@ export default function AboutPage() {
         <section className="py-20 px-4 text-center">
           <FadeIn>
             <h2 className="text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Come Be Part of Our Story</h2>
-            <p className="text-[#78716c] text-lg mb-8 max-w-lg mx-auto">Every visit writes a new chapter. Book your appointment today and experience the Unisex Haircut difference.</p>
+            <p className="text-[#78716c] text-lg mb-8 max-w-lg mx-auto">Every visit writes a new chapter. Book your appointment today and experience the Uptown Hair difference.</p>
             <Link href="/book" className="inline-flex items-center gap-3 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-8 py-4 rounded-xl font-bold text-base transition-all shadow-xl shadow-[#c5a880]/30">
               <Scissors className="w-5 h-5" /> Book Your Visit
             </Link>

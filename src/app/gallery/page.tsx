@@ -55,7 +55,7 @@ export default function GalleryPage() {
             <FadeIn>
               <span className="text-[#c5a880] text-xs font-semibold tracking-[0.25em] uppercase">Lookbook</span>
               <h1 className="text-5xl sm:text-6xl font-bold text-white mt-4 mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Gallery & Transformations</h1>
-              <p className="text-[#78716c] text-lg max-w-xl mx-auto">Real results from real clients at Unisex Haircut Birtamode — filter by style and find your next look.</p>
+              <p className="text-[#78716c] text-lg max-w-xl mx-auto">Real results from real clients at Uptown Hair Birtamode — filter by style and find your next look.</p>
             </FadeIn>
           </div>
         </section>

@@ -38,6 +38,8 @@ export default function Footer() {
                 ["About Us", "/about"],
                 ["Book Appointment", "/book"],
                 ["Privacy Policy", "/privacy"],
+                ["Terms of Use", "/terms"],
+                ["Data Declaration", "/data-declaration"],
               ].map(([label, href]) => (
                 <li key={href}>
                   <Link href={href} className="text-[#78716c] hover:text-[#c5a880] text-sm transition-colors">

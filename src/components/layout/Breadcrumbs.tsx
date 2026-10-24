@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 
 const labels: Record<string, string> = {
   about: "About", services: "Services", stylists: "Stylists", gallery: "Gallery", contact: "Contact",
-  consultation: "Style Diagnostic", discover: "Discover Your Style", book: "Book an Appointment", privacy: "Privacy Policy",
+  consultation: "Style Diagnostic", discover: "Discover Your Style", book: "Book an Appointment",
   auth: "Sign In", dashboard: "Dashboard", passport: "Hair Passport", "style-dna": "Style DNA", "barber-brief": "Barber Brief",
+  privacy: "Privacy Policy", terms: "Terms of Use", "data-declaration": "Data Declaration",
 };
 
 export default function Breadcrumbs() {

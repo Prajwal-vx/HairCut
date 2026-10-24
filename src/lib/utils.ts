@@ -1,4 +1,4 @@
-﻿export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number): string {
   return `रू ${amount.toLocaleString("en-NP")}`;
 }
 
@@ -67,7 +67,7 @@ export function getUserBadges(streak: number, completedVisitsCount: number): Bad
     {
       id: "first_cut",
       name: "Fresh Beginnings",
-      description: "Completed your first session at Unisex Haircut",
+      description: "Completed your first session at Uptown Hair",
       icon: "✂️",
       unlocked: completedVisitsCount >= 1,
     },
