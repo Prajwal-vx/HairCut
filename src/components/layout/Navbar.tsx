@@ -1,9 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Scissors, Bell, User, ChevronDown, LogOut } from "lucide-react";
+import { Menu, X, Scissors, Bell, User, ChevronDown, LogOut, Moon, Search, Sun } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/context/NotificationContext";
 import { salonBrand } from "@/lib/branding";
@@ -23,6 +23,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const lightMode = useSyncExternalStore((onChange) => { window.addEventListener("uptown-theme-change", onChange); return () => window.removeEventListener("uptown-theme-change", onChange); }, () => localStorage.getItem("uptown-theme") === "light", () => false);
   const { user, logout } = useAuth();
   const { notifications, unreadCount } = useNotifications();
 
@@ -31,6 +32,32 @@ export default function Navbar() {
     window.addEventListener("scroll", handler);
     return () => window.removeEventListener("scroll", handler);
   }, []);
+  useEffect(() => {
+    const closeMenus = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        setUserMenuOpen(false);
+        setNotifOpen(false);
+      }
+    };
+    window.addEventListener("keydown", closeMenus);
+    return () => window.removeEventListener("keydown", closeMenus);
+  }, []);
+  useEffect(() => {
+    document.documentElement.dataset.theme = lightMode ? "light" : "dark";
+  }, [lightMode]);
+
+  const toggleTheme = () => {
+    const next = !lightMode;
+    document.documentElement.dataset.theme = next ? "light" : "dark";
+    localStorage.setItem("uptown-theme", next ? "light" : "dark");
+    window.dispatchEvent(new Event("uptown-theme-change"));
+  };
+
+  const openSearch = () => {
+    setIsOpen(false);
+    window.dispatchEvent(new Event("uptown:open-search"));
+  };
 
   return (
     <>
@@ -74,6 +101,8 @@ export default function Navbar() {
 
             {/* Right side actions */}
             <div className="hidden lg:flex items-center gap-4">
+              <button type="button" onClick={openSearch} aria-label="Search site" className="flex items-center gap-2 rounded-lg border border-[#2e2b26] px-3 py-2 text-[#a09080] transition-colors hover:border-[#c5a880] hover:text-[#c5a880]"><Search className="h-4 w-4" /><span className="text-xs">Search</span><kbd className="hidden xl:inline rounded border border-[#2e2b26] px-1 text-[10px]">?K</kbd></button>
+              <button type="button" onClick={toggleTheme} aria-label={lightMode ? "Switch to dark mode" : "Switch to light mode"} className="flex h-9 w-9 items-center justify-center rounded-full border border-[#2e2b26] text-[#a09080] transition-colors hover:border-[#c5a880] hover:text-[#c5a880]">{lightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}</button>
               {user ? (
                 <>
                   {/* Notification Bell */}
@@ -224,6 +253,10 @@ export default function Navbar() {
               id="mobile-navigation"
             >
               <div className="px-4 py-6 space-y-4">
+                <div className="flex gap-2">
+                  <button type="button" onClick={openSearch} className="flex flex-1 items-center gap-2 rounded-lg border border-[#2e2b26] px-3 py-2 text-sm text-[#e0d8cd]"><Search className="h-4 w-4" /> Search site</button>
+                  <button type="button" onClick={toggleTheme} aria-label="Toggle color theme" className="rounded-lg border border-[#2e2b26] px-3 text-[#c5a880]">{lightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}</button>
+                </div>
                 {navLinks.map((link) => (
                   <Link key={link.href} href={link.href} className="block text-[#e0d8cd] hover:text-[#c5a880] font-medium py-1 transition-colors" onClick={() => setIsOpen(false)}>
                     {link.label}

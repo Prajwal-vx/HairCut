@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ClientProviders from "@/components/providers/ClientProviders";
-import { PageProgressBar } from "@/components/ui/ProgressBar";
-import Script from "next/script";
 import { env } from "@/config/env";
 
 export const metadata: Metadata = {
@@ -26,7 +24,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const analyticsId = process.env.NEXT_PUBLIC_GA_ID?.trim();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased font-body">
@@ -35,11 +32,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           url: env.siteUrl, image: new URL("/salon-logo.jpg", env.siteUrl).toString(), telephone: "+9779801234567",
           address: { "@type": "PostalAddress", streetAddress: "Ratan Complex, Bhadrapur Bus Stand", addressLocality: "Birtamode", addressRegion: "Koshi Province", addressCountry: "NP" },
         }) }} />
-        {analyticsId && <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`} strategy="afterInteractive" />
-          <Script id="google-analytics" strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${analyticsId}');`}</Script>
-        </>}
-        <PageProgressBar />
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>

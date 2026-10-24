@@ -183,3 +183,30 @@ select:focus {
     transform: none;
   }
 }
+
+/* Global experience and accessibility polish */
+.skip-link { position: fixed; left: 1rem; top: -4rem; z-index: 100; border-radius: .75rem; background: var(--gold); color: var(--charcoal); padding: .7rem 1rem; font-size: .875rem; font-weight: 700; transition: top .2s ease; }
+.skip-link:focus { top: 1rem; }
+html[data-theme="light"] body { background: #f7f3ec; color: #2c2823; }
+html[data-theme="light"] ::-webkit-scrollbar-track { background: #eee8de; }
+html[data-theme="light"] ::-webkit-scrollbar-thumb { background: #c5a880; }
+html[data-theme="light"] .glass-card { background: rgba(255, 253, 248, .92); border-color: rgba(138, 105, 65, .22); }
+html[data-theme="light"] .bg-\[\#0d0c0b\] { background-color: #f7f3ec !important; }
+html[data-theme="light"] .bg-\[\#141312\] { background-color: #fffdf8 !important; }
+html[data-theme="light"] .text-white { color: #2c2823 !important; }
+html[data-theme="light"] .text-\[\#e0d8cd\] { color: #51483e !important; }
+html[data-theme="light"] .text-\[\#78716c\] { color: #756b5e !important; }
+html[data-theme="light"] .text-\[\#a8a29e\],
+html[data-theme="light"] .text-\[\#b0a090\] { color: #645b50 !important; }
+html[data-theme="light"] header { background-color: rgba(247, 243, 236, .96) !important; border-color: #ded5c8 !important; }
+html[data-theme="light"] .border-\[\#2e2b26\] { border-color: #ded5c8 !important; }
+html[data-theme="light"] .bg-\[\#1a1816\] { background-color: #fffdf8 !important; }
+html[data-theme="light"] .bg-\[\#0d0c0b\]\/95 { background-color: rgba(247, 243, 236, .96) !important; }
+
+@media print {
+  nav, header, footer, .skip-link, [data-print-hidden="true"], .fixed { display: none !important; }
+  body, html { background: #fff !important; color: #111 !important; overflow: visible !important; }
+  main { min-height: auto !important; padding: 1rem !important; }
+  * { color: #111 !important; background: transparent !important; box-shadow: none !important; }
+  a { text-decoration: underline; }
+}

@@ -8,10 +8,13 @@ import MobileBookBar from "@/components/layout/MobileBookBar";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { salonBrand } from "@/lib/branding";
 import Link from "next/link";
+import { CopyButton } from "@/components/ui/CopyButton";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [error, setError] = useState("");
 
   const [sending, setSending] = useState(false);
@@ -24,6 +27,7 @@ export default function ContactPage() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "We could not send your message.");
       setSent(true);
+      setConfirmationOpen(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "We could not send your message.");
     } finally {
@@ -33,6 +37,7 @@ export default function ContactPage() {
 
   return (
     <>
+      <ConfirmationModal open={confirmationOpen} title="Message sent" message="Thank you for contacting us. The salon will get back to you soon." onClose={() => setConfirmationOpen(false)} />
       <Navbar />
       <MobileBookBar />
       <main className="min-h-screen pb-24 lg:pb-0">
@@ -97,7 +102,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="text-white font-semibold mb-1">Phone / WhatsApp</h3>
-                      <a href={`tel:${salonBrand.phone}`} className="text-[#c5a880] hover:underline">{salonBrand.phoneDisplay}</a>
+                      <div className="flex flex-wrap items-center gap-3"><a href={`tel:${salonBrand.phone}`} className="text-[#c5a880] hover:underline">{salonBrand.phoneDisplay}</a><CopyButton value={salonBrand.phone} label="Copy number" /></div>
                       <p className="text-[#78716c] text-xs mt-1">Direct inquiries, wedding party packages, or corporate bookings.</p>
                       {salonBrand.contactEmail && <a href={`mailto:${salonBrand.contactEmail}`} className="mt-2 inline-flex items-center gap-2 text-sm text-[#c5a880] hover:underline"><Mail className="h-4 w-4" />{salonBrand.contactEmail}</a>}
                     </div>
@@ -132,7 +137,7 @@ export default function ContactPage() {
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12">
                     <CheckCircle className="w-16 h-16 text-[#c5a880] mx-auto mb-4" />
                     <h3 className="text-white text-2xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Message sent</h3>
-                    <p className="text-[#78716c]">Thank you for contacting us. The salon will get back to you soon.</p>
+                    <p role="status" aria-live="polite" className="text-[#78716c]">Thank you for contacting us. The salon will get back to you soon.</p>
                     <button onClick={() => setSent(false)} className="mt-6 text-[#c5a880] text-sm hover:underline">Send another message</button>
                   </motion.div>
                 ) : (
@@ -187,14 +192,26 @@ export default function ContactPage() {
                       {sending ? "Sending..." : "Send Message"}
                     </button>
                     <p className="text-center text-xs text-[#78716c]">Messages are sent securely to the salon. See our <Link className="underline hover:text-[#c5a880]" href="/privacy">Privacy Policy</Link>.</p>
-                    {error && <p role="alert" className="text-center text-sm text-[#f29a7e]">{error}</p>}
+                    {error && <p role="alert" aria-live="assertive" className="text-center text-sm text-[#f29a7e]">{error}</p>}
                   </form>
                 )}
               </div>
             </FadeIn>
           </div>
         </section>
-      </main>
+      <section className="max-w-4xl mx-auto px-4 pb-24">
+        <FadeIn>
+          <div className="mb-8 text-center"><span className="text-[#c5a880] text-xs font-semibold tracking-[0.25em] uppercase">Quick answers</span><h2 className="mt-3 text-4xl font-bold text-white" style={{ fontFamily: "Cormorant Garamond, serif" }}>Frequently asked questions</h2></div>
+          <div className="space-y-3">
+            {[
+              ["Do I need an appointment?", "Walk-ins are welcome when a stylist is available. Booking ahead guarantees your preferred time."],
+              ["What should I bring to my appointment?", "Bring a reference photo if you have one, and arrive with clean, product-free hair when possible."],
+              ["Can I change or cancel a booking?", "Call the salon as soon as possible so we can help adjust the appointment and offer the time to another guest."],
+              ["Do you offer consultations?", "Yes. Use the Style Diagnostic or contact us to discuss your goals before choosing a service."],
+            ].map(([question, answer]) => <details key={question} className="group rounded-2xl border border-[#2e2b26] bg-[#141312] px-5 py-4"><summary className="cursor-pointer list-none font-semibold text-white transition-colors group-open:text-[#c5a880]">{question}<span className="float-right text-[#c5a880] transition-transform group-open:rotate-45">+</span></summary><p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#a8a29e]">{answer}</p></details>)}
+          </div>
+        </FadeIn>
+      </section>      </main>
       <Footer />
     </>
   );

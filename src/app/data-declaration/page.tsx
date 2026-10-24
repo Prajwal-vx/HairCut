@@ -13,7 +13,7 @@ const rows = [
   ["Style profile and feedback", "Hair texture, density, length, style preferences, maintenance preferences, optional notes, ratings and feedback.", "Save consultation preferences and tailor salon visits."],
   ["Contact requests", "Name, phone, optional email, and message text.", "Respond to the request. Sent through Resend only when email delivery is configured; not saved in the app JSON database."],
   ["Security and service operation", "Request IP and sign-in identifier are held temporarily in process memory for rate limits; session cookie values; basic server/provider operational logs.", "Prevent abuse, maintain sign-in, and operate the website."],
-  ["Optional analytics", "Website usage and browser/device information may be processed by Google Analytics if the deployment sets a GA measurement ID.", "Understand site use. Analytics is not loaded when no measurement ID is configured."],
+  ["Optional analytics and campaign tags", "If configured and you allow analytics, Google Analytics can process website usage and browser/device information. UTM campaign tags from the landing URL are kept in session storage for the current browser tab.", "Understand visits and campaign performance. Analytics is not loaded before consent or when no measurement ID is configured."],
   ["External security check", "A five-character prefix of a SHA-1 password hash is sent from the server to Have I Been Pwned’s range API during registration; neither the password nor full hash is sent.", "Reject passwords appearing in known breach data."],
 ];
 

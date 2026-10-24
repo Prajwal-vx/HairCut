@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Phone, Clock } from "lucide-react";
 import { salonBrand } from "@/lib/branding";
+import { CookieSettingsButton } from "@/components/layout/SiteUtilities";
 
 export default function Footer() {
   return (
@@ -105,6 +106,7 @@ export default function Footer() {
             © {new Date().getFullYear()} {salonBrand.name}, Birtamode. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
+            <CookieSettingsButton />
             <Link href="/auth" className="text-[#4a4540] hover:text-[#c5a880] text-xs transition-colors">
               Client Login
             </Link>
