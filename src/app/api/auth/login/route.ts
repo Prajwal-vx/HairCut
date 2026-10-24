@@ -31,8 +31,8 @@ export async function POST(req: Request) {
     const rateLimitKey = `${ip}:${identifier.trim().toLowerCase()}`;
     const accountRateLimitKey = `login-account:${identifier.trim().toLowerCase()}`;
 
-    const withinIpLimit = checkRateLimit(rateLimitKey, 5, 60000);
-    const withinAccountLimit = checkRateLimit(accountRateLimitKey, 10, 600000);
+    const withinIpLimit = checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
+    const withinAccountLimit = checkRateLimit(accountRateLimitKey, 5, 15 * 60 * 1000);
     if (!withinIpLimit || !withinAccountLimit) {
       const resetTime = getRateLimitResetTime(rateLimitKey) || getRateLimitResetTime(accountRateLimitKey);
       const retryAfter = resetTime ? Math.ceil((resetTime - Date.now()) / 1000) : 60;
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
       secure: env.isProduction,
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days to match token expiration
-      sameSite: "strict", // Changed from lax to strict for better CSRF protection
+      sameSite: "lax",
     });
 
     return response;

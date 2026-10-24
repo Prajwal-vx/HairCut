@@ -10,10 +10,9 @@ export interface RequestIdentity {
 }
 
 export async function getRequestIdentity(req: Request): Promise<RequestIdentity | null> {
-  const authHeader = req.headers.get("authorization");
-  const bearer = authHeader?.match(/^Bearer\s+(.+)$/i)?.[1];
   const cookie = req.headers.get("cookie")?.match(/(?:^|;\s*)salon_token=([^;]+)/)?.[1];
-  const tokenUser = getUserFromToken(bearer || cookie);
+  // Browser sessions are cookie-only. Never accept a bearer token supplied by client JS.
+  const tokenUser = getUserFromToken(cookie ? decodeURIComponent(cookie) : null);
   if (tokenUser) return { user: tokenUser, provider: "password" };
 
   const session = await getServerSession(authOptions);

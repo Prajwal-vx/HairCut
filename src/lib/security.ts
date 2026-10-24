@@ -26,6 +26,21 @@ export function matchesLegacyPassword(password: string, hash: string): boolean {
   return timingSafeEqual(passwordHash, Buffer.from(hash, "hex"));
 }
 
+/** Checks Have I Been Pwned's k-anonymity range API without disclosing a full password hash. */
+export async function isCompromisedPassword(password: string): Promise<boolean> {
+  const digest = createHash("sha1").update(password, "utf8").digest("hex").toUpperCase();
+  const prefix = digest.slice(0, 5);
+  const suffix = digest.slice(5);
+  const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
+    headers: { "Add-Padding": "true", "User-Agent": "HairCut-Password-Policy" },
+    cache: "no-store",
+    signal: AbortSignal.timeout(3000),
+  });
+  if (!response.ok) throw new Error("Compromised password check unavailable");
+  const hashes = await response.text();
+  return hashes.split(/\r?\n/).some((line) => line.split(":", 1)[0]?.toUpperCase() === suffix);
+}
+
 export function removeLegacyDemoAccounts(db: SalonDatabase): boolean {
   const legacyDemoIds = new Set(["user-owner", "user-admin", "user-client-1", "user-client-2"]);
   const legacyIds = new Set(db.users.filter((user) => legacyDemoIds.has(user.id)).map((user) => user.id));

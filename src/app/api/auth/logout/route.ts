@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     secure: env.isProduction,
     path: "/",
     maxAge: 0,
-    sameSite: "strict",
+    sameSite: "lax",
   });
   return response;
 }

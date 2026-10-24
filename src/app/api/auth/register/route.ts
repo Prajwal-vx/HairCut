@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { readDatabase, writeDatabase } from "@/lib/db";
 import { getSafeUser, hashPassword, signToken, checkRateLimit, getRateLimitResetTime, validateOrigin } from "@/lib/auth";
-import { matchesPhone } from "@/lib/security";
+import { isCompromisedPassword, matchesPhone } from "@/lib/security";
 import { User, LoyaltyTransaction } from "@/lib/types";
 import { env } from "@/config/env";
 
@@ -40,9 +40,9 @@ export async function POST(req: Request) {
     }
 
     // Password strength validation
-    if (password.length < 8) {
+    if (password.length < 12) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters long." },
+        { error: "Password must be at least 12 characters long." },
         { status: 400 }
       );
     }
@@ -55,11 +55,19 @@ export async function POST(req: Request) {
       );
     }
 
+    try {
+      if (await isCompromisedPassword(password)) {
+        return NextResponse.json({ error: "This password has appeared in a data breach. Choose a different password." }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Password safety check is temporarily unavailable. Please try again." }, { status: 503 });
+    }
+
     // Rate limiting based on IP
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
-    if (!checkRateLimit(`register:${ip}`, 3, 3600000)) {
+    if (!checkRateLimit(`register:${ip}`, 5, 15 * 60 * 1000)) {
       const resetTime = getRateLimitResetTime(`register:${ip}`);
-      const retryAfter = resetTime ? Math.ceil((resetTime - Date.now()) / 1000) : 3600;
+      const retryAfter = resetTime ? Math.ceil((resetTime - Date.now()) / 1000) : 900;
       return NextResponse.json(
         { error: "Too many registration attempts. Please try again later." },
         { status: 429, headers: { "Retry-After": retryAfter.toString() } }
@@ -70,11 +78,11 @@ export async function POST(req: Request) {
     const cleanEmail = email.trim().toLowerCase();
     const cleanPhone = phone.trim().replace(/[^0-9]/g, "");
 
-    const emailAllowed = checkRateLimit(`register-email:${cleanEmail}`, 3, 3600000);
-    const phoneAllowed = checkRateLimit(`register-phone:${cleanPhone}`, 3, 3600000);
+    const emailAllowed = checkRateLimit(`register-email:${cleanEmail}`, 5, 15 * 60 * 1000);
+    const phoneAllowed = checkRateLimit(`register-phone:${cleanPhone}`, 5, 15 * 60 * 1000);
     if (!emailAllowed || !phoneAllowed) {
       const resetTime = getRateLimitResetTime(`register-email:${cleanEmail}`) || getRateLimitResetTime(`register-phone:${cleanPhone}`);
-      const retryAfter = resetTime ? Math.ceil((resetTime - Date.now()) / 1000) : 3600;
+      const retryAfter = resetTime ? Math.ceil((resetTime - Date.now()) / 1000) : 900;
       return NextResponse.json(
         { error: "Too many registration attempts. Please try again later." },
         { status: 429, headers: { "Retry-After": retryAfter.toString() } }
@@ -187,7 +195,7 @@ export async function POST(req: Request) {
       secure: env.isProduction,
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days to match token expiration
-      sameSite: "strict", // Changed from lax to strict for better CSRF protection
+      sameSite: "lax",
     });
 
     return response;

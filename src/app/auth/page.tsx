@@ -207,6 +207,7 @@ function AuthForm() {
                       value={regForm.password}
                       onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
                       autoComplete="new-password"
+                      minLength={12}
                       className="w-full bg-[#141312] border border-[#2e2b26] rounded-xl py-3 pl-10 pr-10 text-[#e0d8cd] placeholder-[#4a4540] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
                       required
                     />
@@ -218,6 +219,7 @@ function AuthForm() {
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
+                  <p className="mt-2 text-xs text-[#b0a090]">Use at least 12 characters, including a letter and a number. Passwords found in known breaches are rejected.</p>
                 </div>
                 <div>
                   <label className="block text-[#b0a090] text-sm font-medium mb-2">Preferred Notification Channel</label>
