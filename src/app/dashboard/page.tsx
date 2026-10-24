@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Scissors, Calendar, Gift, Bell, Share2, LogOut, Award, CheckCircle, Sparkles, Shield, TrendingUp, FileText, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
@@ -65,7 +66,7 @@ function DashboardContent() {
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#c5a880]">
                 {user.profilePhotoUrl ? (
-                  <img src={user.profilePhotoUrl} alt={user.fullName} className="w-full h-full object-cover" />
+                  <Image src={user.profilePhotoUrl} alt={`${user.fullName} profile photo`} fill unoptimized sizes="64px" className="object-cover" />
                 ) : (
                   <div className="w-full h-full bg-[#c5a880]/20 flex items-center justify-center text-[#c5a880] text-2xl font-bold">
                     {user.fullName[0]}

@@ -3,6 +3,7 @@
 import React from "react";
 import { Star, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/Card";
+import Image from "next/image";
 import type { Stylist } from "@/lib/types";
 
 interface StylistSelectorProps {
@@ -60,12 +61,13 @@ export function StylistSelector({
                 }`}
               >
                 <div className="flex gap-4 items-center">
-                  <div className="w-16 h-16 rounded-full overflow-hidden shrink-0 border border-[#2e2b26]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 border border-[#2e2b26]">
+                    <Image
                       src={stylist.photoUrl}
                       alt={stylist.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="64px"
+                      className="object-cover"
                     />
                   </div>
                   <div className="flex-1 min-w-0">

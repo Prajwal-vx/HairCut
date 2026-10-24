@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-body: Arial, Helvetica, sans-serif;
   --charcoal: #141312;
   --charcoal-light: #1f1d1a;
   --charcoal-border: #2e2b26;

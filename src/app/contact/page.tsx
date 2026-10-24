@@ -13,17 +13,21 @@ export default function ContactPage() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [sending, setSending] = useState(false);
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!salonBrand.contactEmail) {
-      setError("Email contact is not configured yet. Please call us using the number shown here.");
-      return;
+    setSending(true);
+    try {
+      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "We could not send your message.");
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "We could not send your message.");
+    } finally {
+      setSending(false);
     }
-    const subject = encodeURIComponent(`Website inquiry from ${form.name}`);
-    const body = encodeURIComponent(`${form.message}\n\nPhone: ${form.phone}\nEmail: ${form.email || "Not provided"}`);
-    window.location.href = `mailto:${salonBrand.contactEmail}?subject=${subject}&body=${body}`;
-    setSent(true);
   };
 
   return (
@@ -126,8 +130,8 @@ export default function ContactPage() {
                 {sent ? (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-12">
                     <CheckCircle className="w-16 h-16 text-[#c5a880] mx-auto mb-4" />
-                    <h3 className="text-white text-2xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Email draft opened</h3>
-                    <p className="text-[#78716c]">Review and send the prepared email in your email app to complete your inquiry.</p>
+                    <h3 className="text-white text-2xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Message sent</h3>
+                    <p className="text-[#78716c]">Thank you for contacting us. The salon will get back to you soon.</p>
                     <button onClick={() => setSent(false)} className="mt-6 text-[#c5a880] text-sm hover:underline">Send another message</button>
                   </motion.div>
                 ) : (
@@ -175,12 +179,13 @@ export default function ContactPage() {
                     </div>
                     <button
                       type="submit"
+                      disabled={sending}
                       className="w-full flex items-center justify-center gap-3 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] py-4 rounded-xl font-bold text-base transition-all disabled:opacity-70"
                     >
                       <Send className="w-5 h-5" />
-                      Open Email App
+                      {sending ? "Sending..." : "Send Message"}
                     </button>
-                    {!salonBrand.contactEmail && <p role="status" className="text-center text-sm text-[#c5a880]">Email contact is not configured. Please call us instead.</p>}
+                    <p className="text-center text-xs text-[#78716c]">Messages are sent securely to the salon. See our <a className="underline hover:text-[#c5a880]" href="/privacy">Privacy Policy</a>.</p>
                     {error && <p role="alert" className="text-center text-sm text-[#f29a7e]">{error}</p>}
                   </form>
                 )}

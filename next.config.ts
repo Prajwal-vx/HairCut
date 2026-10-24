@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
+  async redirects() {
+    return [
+      { source: "/home", destination: "/", permanent: true },
+      { source: "/booking", destination: "/book", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

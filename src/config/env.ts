@@ -20,6 +20,11 @@ export const env = {
   nextAuthUrl: getEnvVar("NEXTAUTH_URL", "http://localhost:3000"),
   cronSecret: getEnvVar("CRON_SECRET"),
   appOrigin: getEnvVar("APP_ORIGIN"),
+  siteUrl: getEnvVar("SITE_URL", getEnvVar("APP_ORIGIN", getEnvVar("NEXTAUTH_URL", "http://localhost:3000"))),
+  resendApiKey: getEnvVar("RESEND_API_KEY"),
+  resendFrom: getEnvVar("RESEND_FROM"),
+  contactEmail: getEnvVar("CONTACT_EMAIL"),
+  googleSearchConsoleVerification: getEnvVar("GOOGLE_SITE_VERIFICATION"),
 
   // Google OAuth
   googleClientId: getEnvVar("GOOGLE_CLIENT_ID"),

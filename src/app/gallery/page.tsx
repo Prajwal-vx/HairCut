@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Heart } from "lucide-react";
+import Image from "next/image";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
@@ -86,7 +87,7 @@ export default function GalleryPage() {
               <motion.div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[140px] sm:auto-rows-[170px]">
                 {photos.map((photo, i) => (
                   <motion.div key={photo.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: i * 0.05 }} className={`cursor-pointer group relative rounded-2xl overflow-hidden ${i % 7 === 0 ? "row-span-2 sm:col-span-2" : i % 5 === 0 ? "row-span-2" : "row-span-2 sm:row-span-1"}`} onClick={() => setLightboxPhoto(photo)}>
-                    <img src={photo.imageUrl} alt={photo.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    <Image src={photo.imageUrl} alt={photo.caption} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                       <span className="text-xs bg-[#c5a880]/20 text-[#c5a880] px-2 py-0.5 rounded-full border border-[#c5a880]/30">{photo.category}</span>
@@ -111,7 +112,7 @@ export default function GalleryPage() {
         {lightboxPhoto && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setLightboxPhoto(null)}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="relative max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
-              <img src={lightboxPhoto.imageUrl} alt={lightboxPhoto.caption} className="w-full rounded-2xl max-h-[80vh] object-contain" />
+              <Image src={lightboxPhoto.imageUrl} alt={lightboxPhoto.caption} width={1200} height={900} sizes="90vw" className="w-full rounded-2xl max-h-[80vh] object-contain" />
               <div className="mt-4 flex items-start justify-between gap-4">
                 <div>
                   <span className="text-xs bg-[#c5a880]/20 text-[#c5a880] px-2 py-0.5 rounded-full border border-[#c5a880]/30">{lightboxPhoto.category}</span>

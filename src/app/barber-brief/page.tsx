@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Scissors,
@@ -446,9 +447,12 @@ ${barberBrief.additionalNotes ? `NOTES\n${barberBrief.additionalNotes}` : ""}
                     {barberBrief.referenceImageUrl && (
                       <div className="bg-[#141312] rounded-xl p-5 border border-[#2e2b26]">
                         <p className="text-[#c5a880] text-xs font-semibold mb-3">REFERENCE</p>
-                        <img
+                        <Image
                           src={barberBrief.referenceImageUrl}
                           alt="Reference"
+                          width={1200}
+                          height={600}
+                          sizes="(max-width: 768px) 100vw, 50vw"
                           className="w-full h-48 object-cover rounded-lg"
                         />
                       </div>

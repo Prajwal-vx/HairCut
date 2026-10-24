@@ -53,7 +53,7 @@ export default function HomePage() {
         {/* HERO */}
         <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0">
-              <Image src={heroImage} alt="Salon" fill priority sizes="100vw" quality={75} className="object-cover" />
+              <Image src={heroImage} alt="Modern salon interior at Uptown Hair in Birtamode" fill priority sizes="100vw" quality={75} className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-b from-[#0d0c0b]/60 via-[#0d0c0b]/30 to-[#0d0c0b]" />
           </div>
 
@@ -371,7 +371,7 @@ export default function HomePage() {
                 </FadeIn>
               </div>
               <div className="relative h-64 md:h-auto">
-                <Image src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&auto=format&fit=crop&q=75" alt="Salon" fill sizes="(max-width: 768px) 100vw, 50vw" quality={72} className="object-cover" />
+                <Image src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&auto=format&fit=crop&q=75" alt="Hair styling studio at Uptown Hair Unisex Salon" fill sizes="(max-width: 768px) 100vw, 50vw" quality={72} className="object-cover" />
               </div>
             </div>
           </div>

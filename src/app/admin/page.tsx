@@ -19,6 +19,7 @@ import {
   Crown,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/layout/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { formatCurrency } from "@/lib/utils";
@@ -597,8 +598,7 @@ function AdminContent() {
                 {photoForm.imageUrl && (
                   <div className="mb-4">
                     <p className="text-[#78716c] text-xs mb-2">Live Preview:</p>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={photoForm.imageUrl} alt="Preview" className="h-36 rounded-xl object-cover border border-[#2e2b26]" />
+                    <Image src={photoForm.imageUrl} alt="Selected gallery photo preview" width={320} height={144} unoptimized className="h-36 rounded-xl object-cover border border-[#2e2b26]" />
                   </div>
                 )}
                 <button
@@ -638,8 +638,7 @@ function AdminContent() {
                 {filteredGallery.map((p) => (
                   <div key={p.id} className="relative group rounded-xl overflow-hidden border border-[#2e2b26] bg-[#141312] flex flex-col">
                     <div className="relative h-48 overflow-hidden bg-black">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p.imageUrl} alt={p.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <Image src={p.imageUrl} alt={p.caption} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
                       {p.showOnHome && (
                         <span className="absolute top-2 left-2 bg-[#c5a880] text-[#141312] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-lg">
                           <Sparkles className="w-3 h-3" /> Home Page

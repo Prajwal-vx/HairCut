@@ -137,7 +137,7 @@ export default function Navbar() {
                     >
                       <div className="relative w-7 h-7 rounded-full bg-[#c5a880] overflow-hidden flex items-center justify-center">
                         {user.profilePhotoUrl ? (
-                          <Image src={user.profilePhotoUrl} alt={user.fullName} width={28} height={28} className="w-full h-full object-cover" />
+                          <Image src={user.profilePhotoUrl} alt={`${user.fullName} profile photo`} width={28} height={28} unoptimized className="w-full h-full object-cover" />
                         ) : (
                           <User className="w-4 h-4 text-[#141312]" />
                         )}
