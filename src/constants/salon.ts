@@ -33,9 +33,11 @@ export const TIME_SLOTS = [
 export const VALID_TIME_SLOTS = new Set<string>(TIME_SLOTS);
 
 export const APPOINTMENT_STATUSES: readonly AppointmentStatus[] = [
+  "pending",
   "upcoming",
   "completed",
   "cancelled",
+  "declined",
   "no-show",
 ] as const;
 

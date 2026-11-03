@@ -162,6 +162,20 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
                                       Time for a Trim 💈
                                     </span>
                                   )}
+                                  {(n.type === "booking_request" || n.type === "booking_request_received") && (
+                                    <span className="mb-1 inline-block rounded-full border border-amber-700/40 bg-amber-950/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-300">
+                                      {n.type === "booking_request" ? "New booking request" : "Awaiting confirmation"}
+                                    </span>
+                                  )}
+                                  {n.type === "booking_request_cancelled" && (
+                                    <span className="mb-1 inline-block rounded-full bg-[#2e2b26] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#d0c5b9]">Request cancelled</span>
+                                  )}
+                                  {n.type === "booking_confirmed" && (
+                                    <span className="mb-1 inline-block rounded-full bg-[#c5a880]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#c5a880]">Appointment confirmed</span>
+                                  )}
+                                  {n.type === "booking_declined" && (
+                                    <span className="mb-1 inline-block rounded-full bg-red-950/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-300">Appointment update</span>
+                                  )}
                                   <p className="text-[#e0d8cd] text-xs leading-relaxed">{n.message}</p>
                                   <p className="text-[#78716c] text-[10px] mt-1">{new Date(n.sentAt).toLocaleDateString()}</p>
                                 </div>

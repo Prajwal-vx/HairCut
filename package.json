@@ -7,6 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "setup:admin": "node src/scripts/setup-admin.mjs",
     "security:test": "node --experimental-strip-types --test tests/security.test.mjs"
   },
   "dependencies": {

@@ -10,7 +10,8 @@ const VALID_TIME_SLOTS = new Set([
   "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM",
   "6:00 PM", "6:30 PM", "7:00 PM",
 ]);
-const VALID_STATUSES = new Set(["upcoming", "completed", "cancelled", "no-show"]);
+const VALID_STATUSES = new Set(["pending", "upcoming", "completed", "cancelled", "declined", "no-show"]);
+const holdsTimeSlot = (status: string) => status === "pending" || status === "upcoming";
 
 export async function GET(req: Request) {
   const identity = await getRequestIdentity(req);
@@ -69,7 +70,7 @@ export async function POST(req: Request) {
   if (assignedStylistId === "any") {
     const availableStylist = db.stylists.find(
       (stylist) => stylist.active && !db.appointments.some(
-        (appointment) => appointment.stylistId === stylist.id && appointment.visitDate === visitDate && appointment.timeSlot === timeSlot && appointment.status === "upcoming"
+        (appointment) => appointment.stylistId === stylist.id && appointment.visitDate === visitDate && appointment.timeSlot === timeSlot && holdsTimeSlot(appointment.status)
       )
     );
     if (!availableStylist) {
@@ -83,7 +84,7 @@ export async function POST(req: Request) {
 
   // Check slot availability (same stylist, same date, same time)
   const conflict = db.appointments.find(
-    (a) => a.stylistId === assignedStylistId && a.visitDate === visitDate && a.timeSlot === timeSlot && a.status === "upcoming"
+    (a) => a.stylistId === assignedStylistId && a.visitDate === visitDate && a.timeSlot === timeSlot && holdsTimeSlot(a.status)
   );
   if (conflict) {
     return NextResponse.json({ error: "This time slot is already booked. Please choose another." }, { status: 409 });
@@ -96,24 +97,35 @@ export async function POST(req: Request) {
     serviceId,
     visitDate,
     timeSlot,
-    status: "upcoming",
+    status: "pending",
     notes: notes?.trim() || "",
     amountPaid: service.price,
     createdAt: new Date().toISOString(),
+    statusHistory: [{ status: "pending", changedAt: new Date().toISOString(), changedBy: "customer" }],
   };
 
   db.appointments.push(newApt);
 
-  // Create in-app booking confirmation notification
+  // Tell the customer their request was received, and alert staff in their in-app inbox.
   db.notifications.unshift({
     id: "notif-" + Date.now(),
     userId,
-    type: "booking_confirmed",
+    type: "booking_request_received",
     channel: "app",
-    status: "delivered",
-    message: `Your appointment for ${service.name} on ${visitDate} at ${timeSlot} has been confirmed. We look forward to seeing you at Uptown Hair, Birtamode! 💈`,
+    status: "pending",
+    message: `We received your request for ${service.name} on ${visitDate} at ${timeSlot}. It is awaiting salon confirmation.`,
     sentAt: new Date().toISOString(),
   });
+  const staffUsers = db.users.filter((item) => item.role === "ADMIN" || item.role === "OWNER" || item.isAdmin);
+  staffUsers.forEach((staff, index) => db.notifications.unshift({
+    id: `notif-${Date.now()}-${index + 1}`,
+    userId: staff.id,
+    type: "booking_request",
+    channel: "app",
+    status: "pending",
+    message: `New appointment request from ${identity.user.fullName}: ${service.name} on ${visitDate} at ${timeSlot}. Please review it in the admin portal.`,
+    sentAt: new Date().toISOString(),
+  }));
 
   writeDatabase(db);
 
@@ -153,22 +165,61 @@ export async function PATCH(req: Request) {
   const apt = db.appointments[aptIndex];
   const isStaffOrOwner = canManageSalon(identity);
 
-  // Appointment completion is a one-way transition so loyalty rewards cannot be earned repeatedly.
-  if (apt.status !== "upcoming") {
-    return NextResponse.json({ error: "Only upcoming appointments can be updated." }, { status: 409 });
-  }
-
-  // Clients can only cancel their own appointments; only staff or owners can alter other statuses.
+  // Clients may withdraw their own pending request or cancel their own confirmed visit.
   if (!isStaffOrOwner) {
-    if (apt.userId !== identity.user.id || status !== "cancelled") {
-      return NextResponse.json(
-        { error: "Forbidden: Clients may only cancel their own appointments. Only staff/owner can mark visits completed." },
-        { status: 403 }
-      );
+    if (apt.userId !== identity.user.id || status !== "cancelled" || !holdsTimeSlot(apt.status)) {
+      return NextResponse.json({ error: "You can only cancel your own pending request or confirmed appointment." }, { status: 403 });
     }
+  } else if (apt.status === "pending") {
+    if (status !== "upcoming" && status !== "declined") {
+      return NextResponse.json({ error: "Pending requests can only be confirmed or declined." }, { status: 409 });
+    }
+  } else if (apt.status === "upcoming") {
+    if (status !== "completed" && status !== "cancelled" && status !== "no-show") {
+      return NextResponse.json({ error: "Confirmed appointments can only be completed, cancelled, or marked no-show." }, { status: 409 });
+    }
+  } else {
+    return NextResponse.json({ error: "This appointment can no longer be updated." }, { status: 409 });
   }
 
   db.appointments[aptIndex].status = status as Appointment["status"];
+  db.appointments[aptIndex].statusHistory ??= [];
+  db.appointments[aptIndex].statusHistory.push({
+    status: status as Appointment["status"],
+    changedAt: new Date().toISOString(),
+    changedBy: isStaffOrOwner ? "staff" : "customer",
+  });
+
+  if (status === "upcoming" || status === "declined" || (status === "cancelled" && isStaffOrOwner)) {
+    const service = db.services.find((item) => item.id === apt.serviceId);
+    const message = status === "upcoming"
+      ? `Your appointment request for ${service?.name || "your service"} on ${apt.visitDate} at ${apt.timeSlot} is confirmed. We look forward to seeing you!`
+      : status === "declined"
+        ? `Your appointment request for ${service?.name || "your service"} on ${apt.visitDate} at ${apt.timeSlot} could not be accepted. Please choose another time or contact the salon.`
+        : `Your confirmed appointment for ${service?.name || "your service"} on ${apt.visitDate} at ${apt.timeSlot} was cancelled by the salon. Please contact us if you need help.`;
+    db.notifications.unshift({
+      id: `notif-${Date.now()}-${apt.id}`,
+      userId: apt.userId,
+      type: status === "upcoming" ? "booking_confirmed" : "booking_declined",
+      channel: "app",
+      status: "pending",
+      message,
+      sentAt: new Date().toISOString(),
+    });
+  }
+
+  if (status === "cancelled" && !isStaffOrOwner) {
+    const staffUsers = db.users.filter((item) => item.role === "ADMIN" || item.role === "OWNER" || item.isAdmin);
+    staffUsers.forEach((staff, index) => db.notifications.unshift({
+      id: `notif-${Date.now()}-${apt.id}-${index}`,
+      userId: staff.id,
+      type: "booking_request_cancelled",
+      channel: "app",
+      status: "pending",
+      message: `${identity.user.fullName} cancelled their appointment for ${apt.visitDate} at ${apt.timeSlot}.`,
+      sentAt: new Date().toISOString(),
+    }));
+  }
 
   if (status === "completed") {
     db.appointments[aptIndex].completedAt = new Date().toISOString();

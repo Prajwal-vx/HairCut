@@ -37,7 +37,7 @@ export function runAutomaticRemindersJob(): ReminderCheckResult {
     if (diffDays >= 35 && diffDays <= 40) {
       // 1. Check if client has already booked an upcoming appointment (Rule 6: cancel/skip reminder)
       const hasUpcomingBooking = db.appointments.some(
-        (apt) => apt.userId === user.id && apt.status === "upcoming"
+        (apt) => apt.userId === user.id && (apt.status === "upcoming" || apt.status === "pending")
       );
 
       if (hasUpcomingBooking) {

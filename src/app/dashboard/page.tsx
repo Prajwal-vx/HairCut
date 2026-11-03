@@ -29,13 +29,20 @@ function DashboardContent() {
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([
+    let cancelled = false;
+    const refresh = () => Promise.all([
       fetch("/api/appointments", { credentials: "include" }).then((r) => r.json()),
       fetch("/api/notifications", { credentials: "include" }).then((r) => r.json()),
     ]).then(([apts, notifs]) => {
+      if (cancelled) return;
       setAppointments(apts.appointments || []);
       setNotifications(notifs.notifications || []);
-    });
+    }).catch(() => undefined);
+    void refresh();
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") void refresh();
+    }, 15000);
+    return () => { cancelled = true; window.clearInterval(timer); };
   }, [user]);
 
   const copyReferral = () => {
@@ -52,10 +59,26 @@ function DashboardContent() {
   }
 
   const upcoming = appointments.filter((a) => a.status === "upcoming");
+  const pendingAppointments = appointments.filter((a) => a.status === "pending");
+  const activeAppointments = [...pendingAppointments, ...upcoming].sort((a, b) => `${a.visitDate} ${a.timeSlot}`.localeCompare(`${b.visitDate} ${b.timeSlot}`));
   const completed = appointments.filter((a) => a.status === "completed");
   const streakInfo = calculateStreakInfo(user.styleStreak || 0, user.lastVisitDate);
   const badges = getUserBadges(user.styleStreak || 0, completed.length);
   const daysSince = getDaysSince(user.lastVisitDate);
+
+  const cancelBooking = async (appointmentId: string) => {
+    const response = await fetch("/api/appointments", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ appointmentId, status: "cancelled" }),
+    });
+    if (!response.ok) {
+      window.alert("We couldn’t cancel this appointment. Please refresh and try again.");
+      return;
+    }
+    setAppointments((current) => current.map((appointment) => appointment.id === appointmentId ? { ...appointment, status: "cancelled" } : appointment));
+  };
 
   return (
     <main className="min-h-screen pb-24 lg:pb-0">
@@ -189,10 +212,10 @@ function DashboardContent() {
               <FadeIn delay={0.1}>
                 <div className="glass-card rounded-2xl p-6">
                   <div className="flex items-center justify-between mb-5">
-                    <h2 className="text-lg font-bold text-white">Upcoming Appointments</h2>
+                    <h2 className="text-lg font-bold text-white">Appointment requests & visits</h2>
                     <Link href="/book" className="text-[#c5a880] text-xs hover:underline">+ New Appointment</Link>
                   </div>
-                  {upcoming.length === 0 ? (
+                  {activeAppointments.length === 0 ? (
                     <div className="text-center py-8">
                       <Calendar className="w-10 h-10 text-[#2e2b26] mx-auto mb-3" />
                       <p className="text-[#78716c] text-sm">No upcoming appointments scheduled.</p>
@@ -202,8 +225,8 @@ function DashboardContent() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {upcoming.map((apt) => (
-                        <div key={apt.id} className="bg-[#141312] border border-[#2e2b26] rounded-xl p-4 flex items-center justify-between gap-4">
+                      {activeAppointments.map((apt) => (
+                        <div key={apt.id} className="bg-[#141312] border border-[#2e2b26] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-[#c5a880]/10 border border-[#c5a880]/20 flex items-center justify-center flex-shrink-0">
                               <Scissors className="w-5 h-5 text-[#c5a880]" />
@@ -215,9 +238,12 @@ function DashboardContent() {
                               </p>
                             </div>
                           </div>
-                          <span className="text-[#c5a880] text-xs font-semibold border border-[#c5a880]/30 px-3 py-1 rounded-full bg-[#c5a880]/10">
-                            Upcoming
-                          </span>
+                          <div className="flex items-center gap-3 self-end sm:self-auto">
+                            <span className={`text-xs font-semibold border px-3 py-1 rounded-full ${apt.status === "pending" ? "border-amber-700/60 bg-amber-950/40 text-amber-300" : "border-[#c5a880]/30 bg-[#c5a880]/10 text-[#c5a880]"}`}>
+                              {apt.status === "pending" ? "Awaiting salon confirmation" : "Confirmed"}
+                            </span>
+                            <button type="button" onClick={() => void cancelBooking(apt.id)} className="text-xs text-[#a99c8e] underline-offset-2 hover:text-red-300 hover:underline">Cancel</button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -328,6 +354,12 @@ function DashboardContent() {
                             <span className="text-[10px] bg-[#c5a880]/20 text-[#c5a880] px-2 py-0.5 rounded-full font-bold uppercase block w-fit mb-1">
                               Confirmed ✓
                             </span>
+                          )}
+                          {n.type === "booking_request_received" && (
+                            <span className="text-[10px] bg-amber-950/50 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase block w-fit mb-1">Awaiting salon confirmation</span>
+                          )}
+                          {n.type === "booking_declined" && (
+                            <span className="text-[10px] bg-red-950/50 text-red-300 px-2 py-0.5 rounded-full font-bold uppercase block w-fit mb-1">Request update</span>
                           )}
                           <p className="text-[#d0c8be] text-xs leading-relaxed">{n.message}</p>
                           <p className="text-[#5a554e] text-[10px] mt-1">{new Date(n.sentAt).toLocaleDateString()}</p>
