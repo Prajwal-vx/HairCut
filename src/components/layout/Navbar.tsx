@@ -3,7 +3,7 @@ import React, { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Scissors, Bell, User, ChevronDown, LogOut, Moon, Search, Sun } from "lucide-react";
+import { ArrowRight, Menu, X, Scissors, Bell, User, ChevronDown, LogOut, Moon, Search, Sun } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/context/NotificationContext";
 import { salonBrand } from "@/lib/branding";
@@ -18,7 +18,16 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
-export default function Navbar() {
+const homeNavLinks = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/services", label: "Services" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/stylists", label: "Stylists" },
+  { href: "/contact", label: "Contact" },
+];
+
+export default function Navbar({ showAnnouncement = false }: { showAnnouncement?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -26,6 +35,7 @@ export default function Navbar() {
   const lightMode = useSyncExternalStore((onChange) => { window.addEventListener("uptown-theme-change", onChange); return () => window.removeEventListener("uptown-theme-change", onChange); }, () => localStorage.getItem("uptown-theme") === "light", () => false);
   const { user, logout } = useAuth();
   const { notifications, unreadCount } = useNotifications();
+  const visibleNavLinks = showAnnouncement ? homeNavLinks : navLinks;
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -61,11 +71,22 @@ export default function Navbar() {
 
   return (
     <>
+      {showAnnouncement && (
+        <div className="fixed inset-x-0 top-0 z-[60] h-9 border-b border-[#c5a880]/20 bg-[#17130f]/95 px-4 backdrop-blur-md">
+          <div className="mx-auto flex h-full max-w-7xl items-center justify-center gap-3 sm:justify-between">
+            <p className="hidden text-[10px] font-medium tracking-[.12em] text-[#d6c6b3] sm:block">A LITTLE TIME FOR YOURSELF, RIGHT HERE IN BIRTAMODE</p>
+            <span className="text-[10px] font-medium tracking-[.1em] text-[#d6c6b3] sm:hidden">YOUR STYLE, YOUR WAY · BIRTAMODE</span>
+            <Link href="/book" className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[.1em] text-[#e4c99e] transition-colors hover:text-white">
+              Book your visit <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </div>
+      )}
       <motion.header
         initial={{ y: -80 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed ${showAnnouncement ? "top-9" : "top-0"} left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? "bg-[#0d0c0b]/95 backdrop-blur-xl border-b border-[#2e2b26]"
             : "bg-transparent"
@@ -79,20 +100,20 @@ export default function Navbar() {
                 <Image src={salonBrand.logoSrc} alt={`${salonBrand.name} logo`} width={40} height={40} className="w-full h-full object-cover" />
               </div>
               <div>
-                <span className="text-white font-display text-base sm:text-lg font-semibold tracking-wide leading-tight block">
-                  {salonBrand.name}
+                <span className="text-white font-display text-base sm:text-lg font-semibold tracking-wide leading-tight block whitespace-nowrap">
+                  {showAnnouncement ? "Uptown Hair" : salonBrand.name}
                 </span>
                 <p className="text-[#c5a880] text-xs tracking-wide">{salonBrand.location}</p>
               </div>
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link) => (
+            <nav className={`hidden lg:flex ${showAnnouncement ? "items-center gap-4 xl:gap-6" : "items-center gap-8"}`}>
+              {visibleNavLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-[#e0d8cd] hover:text-[#c5a880] text-sm font-medium transition-colors duration-200 tracking-wide"
+                  className={`text-[#e0d8cd] hover:text-[#c5a880] ${showAnnouncement ? "text-xs" : "text-sm"} font-medium transition-colors duration-200 tracking-wide`}
                 >
                   {link.label}
                 </Link>
@@ -100,8 +121,8 @@ export default function Navbar() {
             </nav>
 
             {/* Right side actions */}
-            <div className="hidden lg:flex items-center gap-4">
-              <button type="button" onClick={openSearch} aria-label="Search site" className="flex items-center gap-2 rounded-lg border border-[#2e2b26] px-3 py-2 text-[#a09080] transition-colors hover:border-[#c5a880] hover:text-[#c5a880]"><Search className="h-4 w-4" /><span className="text-xs">Search</span><kbd className="hidden xl:inline rounded border border-[#2e2b26] px-1 text-[10px]">?K</kbd></button>
+            <div className={`hidden lg:flex ${showAnnouncement ? "items-center gap-2 xl:gap-3" : "items-center gap-4"}`}>
+              <button type="button" onClick={openSearch} aria-label="Search site" className="flex items-center gap-2 rounded-lg border border-[#2e2b26] p-2 xl:px-3 xl:py-2 text-[#a09080] transition-colors hover:border-[#c5a880] hover:text-[#c5a880]"><Search className="h-4 w-4" /><span className={showAnnouncement ? "hidden xl:inline text-xs" : "text-xs"}>Search</span><kbd className="hidden 2xl:inline rounded border border-[#2e2b26] px-1 text-[10px]">?K</kbd></button>
               <button type="button" onClick={toggleTheme} aria-label={lightMode ? "Switch to dark mode" : "Switch to light mode"} className="flex h-9 w-9 items-center justify-center rounded-full border border-[#2e2b26] text-[#a09080] transition-colors hover:border-[#c5a880] hover:text-[#c5a880]">{lightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}</button>
               {user ? (
                 <>
@@ -222,7 +243,7 @@ export default function Navbar() {
 
               <Link
                 href="/book"
-                className="bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:shadow-[#c5a880]/25"
+                className="bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-3 xl:px-5 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:shadow-lg hover:shadow-[#c5a880]/25 whitespace-nowrap"
               >
                 Book Now
               </Link>
@@ -257,7 +278,7 @@ export default function Navbar() {
                   <button type="button" onClick={openSearch} className="flex flex-1 items-center gap-2 rounded-lg border border-[#2e2b26] px-3 py-2 text-sm text-[#e0d8cd]"><Search className="h-4 w-4" /> Search site</button>
                   <button type="button" onClick={toggleTheme} aria-label="Toggle color theme" className="rounded-lg border border-[#2e2b26] px-3 text-[#c5a880]">{lightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}</button>
                 </div>
-                {navLinks.map((link) => (
+                {visibleNavLinks.map((link) => (
                   <Link key={link.href} href={link.href} className="block text-[#e0d8cd] hover:text-[#c5a880] font-medium py-1 transition-colors" onClick={() => setIsOpen(false)}>
                     {link.label}
                   </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarClock, ChevronLeft, ChevronRight, MapPin, Scissors } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -57,19 +57,29 @@ function BookingFlowInner() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="text-center mb-8">
+      <div className="text-center mb-9">
+        <span className="inline-flex items-center gap-2 text-[#c5a880] text-[10px] font-semibold tracking-[.22em] uppercase mb-4">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#c5a880]" /> Your next great hair day
+        </span>
         <h1
-          className="text-4xl md:text-5xl font-bold text-white mb-3"
+          className="text-4xl sm:text-5xl md:text-6xl font-semibold text-white mb-3 leading-[.98]"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
         >
-          Book Your Appointment
+          Let’s book your visit
         </h1>
-        <p className="text-stone-400 text-sm max-w-md mx-auto">
-          Reserve your master cut, custom styling, or scalp therapy in under 2 minutes.
+        <p className="text-[#b7aa9c] text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+          Pick your service, stylist, and a time that works for you. It takes about two minutes.
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-xs text-[#a99c8e]">
+          <span className="inline-flex items-center gap-2"><Scissors className="w-3.5 h-3.5 text-[#c5a880]" /> 15 salon services</span>
+          <span className="inline-flex items-center gap-2"><CalendarClock className="w-3.5 h-3.5 text-[#c5a880]" /> Choose your time</span>
+          <span className="inline-flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-[#c5a880]" /> Birtamode</span>
+        </div>
       </div>
 
-      <BookingStepIndicator currentStep={step} onStepClick={(s) => setStep(s)} />
+      <div aria-label="Booking progress" className="rounded-2xl border border-[#c5a880]/15 bg-[#141312]/60 px-2 py-4 sm:px-5 mb-9">
+        <BookingStepIndicator currentStep={step} onStepClick={(s) => setStep(s)} />
+      </div>
 
       {/* Step 1: Select Service */}
       {step === 1 && (

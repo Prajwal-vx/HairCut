@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import HomeTestimonials from "@/app/home-testimonials";
-import { Scissors, ChevronRight, Sparkles, Compass } from "lucide-react";
+import { Award, ArrowUpRight, CalendarDays, ChevronRight, Clock, Compass, MapPin, Play, Scissors, Sparkles, Users } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
@@ -14,12 +14,14 @@ import { formatCurrency } from "@/lib/utils";
 import type { GalleryPhoto } from "@/lib/types";
 
 const heroImage = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1600&auto=format&fit=crop&q=75";
+const heroPortrait = "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=1600&auto=format&fit=crop&q=80";
 
 const serviceHighlights = [
   { name: "Precision Barber Cut", category: "Short Cuts", price: 450, icon: "✂️", image: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&auto=format&fit=crop&q=80" },
   { name: "Full Dimension Balayage", category: "Color", price: 4500, icon: "🎨", image: "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=600&auto=format&fit=crop&q=80" },
   { name: "Sculpted Beard & Razor Edge", category: "Beard Trim", price: 350, icon: "🪒", image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&auto=format&fit=crop&q=80" },
   { name: "Keratin Smooth Gloss", category: "Treatments", price: 4200, icon: "✨", image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&auto=format&fit=crop&q=80" },
+  { name: "Luxe Moroccan Oil Blowout", category: "Styling", price: 750, icon: "✧", image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&auto=format&fit=crop&q=80" },
 ];
 
 export default function HomePage() {
@@ -46,52 +48,61 @@ export default function HomePage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar showAnnouncement />
       <MobileBookBar />
       <main className="pb-24 lg:pb-0">
 
         {/* HERO */}
-        <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+        <section className="home-hero relative min-h-[min(800px,100svh)] flex items-center overflow-hidden px-4 sm:px-6 lg:px-8">
           <div className="absolute inset-0">
-              <Image src={heroImage} alt="Modern salon interior at Uptown Hair in Birtamode" fill priority sizes="100vw" quality={75} className="object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-[#0d0c0b]/60 via-[#0d0c0b]/30 to-[#0d0c0b]" />
+              <Image src={heroPortrait} alt="Long, dimensional hair styled at Uptown Hair" fill priority sizes="100vw" quality={75} className="object-cover object-[65%_center]" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0d0c0b]/95 via-[#0d0c0b]/80 to-[#0d0c0b]/15" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b] via-transparent to-[#0d0c0b]/40" />
           </div>
 
-          <div className="relative z-10 max-w-5xl mx-auto px-4 text-center pt-32">
+          <div className="relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_.9fr] items-center gap-8 pt-28 pb-24 lg:pt-32 lg:pb-24">
+            <div className="max-w-3xl text-center lg:text-left">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}>
-              <span className="inline-block text-[#c5a880] text-xs font-semibold tracking-wide mb-6 border border-[#c5a880]/30 px-4 py-2 rounded-full">
-                ✦ Ratan Complex · Birtamode, Nepal ✦
+              <span className="inline-flex items-center gap-2 text-[#dfc8a8] text-[10px] sm:text-xs font-semibold tracking-[0.17em] uppercase mb-7">
+                <span className="w-7 h-px bg-[#c5a880]" /> Expert stylists · Exceptional you
               </span>
             </motion.div>
 
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 1 }} className="text-5xl sm:text-6xl lg:text-6xl font-bold leading-[0.95] mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              <span className="text-white">Where Every </span>
-              <span className="text-gold-gradient">Cut</span><br />
-              <span className="text-white">Tells a </span>
-              <span className="italic" style={{ color: "#c86d51" }}>Story</span>
+            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 1 }} className="text-[3.5rem] sm:text-7xl lg:text-[5.2rem] font-semibold leading-[.86] tracking-[-.035em] mb-7" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <span className="text-white block">Your Hair.</span>
+              <span className="text-white block">Your Style.</span>
+              <span className="italic text-gold-gradient block">Your Confidence.</span>
             </motion.h1>
 
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.8 }} className="text-[#b0a090] text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-              Boutique barbershop meets modern salon — premium haircuts, expert colour, luxe beard grooming, and treatments crafted for everyone.
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.8 }} className="text-[#d0c5b9] text-base sm:text-lg max-w-xl mx-auto lg:mx-0 mb-9 leading-[1.8]">
+              Personalised cuts, colour, and care to bring your own style into focus. Thoughtful service for everyone, right here in Birtamode.
             </motion.p>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/book" className="flex w-full sm:w-auto items-center justify-center gap-3 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-5 sm:px-8 py-4 rounded-xl font-bold text-base transition-all duration-300 shadow-xl shadow-[#c5a880]/30 hover:-translate-y-0.5">
-                <Scissors className="w-5 h-5" /> Book Your Appointment
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+              <Link href="/book" className="flex w-full sm:w-auto items-center justify-center gap-3 bg-[#c5a880] hover:bg-[#dfc8a8] text-[#141312] px-6 sm:px-8 py-3.5 rounded-md font-bold text-[11px] tracking-wide uppercase transition-all duration-300 shadow-xl shadow-[#c5a880]/20 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#dfc8a8]">
+                Book Appointment <ArrowUpRight className="w-4 h-4" />
               </Link>
-              <Link href="/consultation" className="flex w-full sm:w-auto items-center justify-center gap-2 border border-[#c5a880]/60 hover:border-[#c5a880] text-[#f3efe6] px-5 sm:px-8 py-4 rounded-xl font-medium text-base transition-all duration-200 bg-[#1a1816]/80 hover:bg-[#c5a880]/15">
-                <Compass className="w-4 h-4 text-[#c5a880]" /> Face Shape Quiz <ChevronRight className="w-4 h-4" />
+              <Link href="/services" className="flex w-full sm:w-auto items-center justify-center gap-2 border border-[#c5a880]/55 hover:border-[#dfc8a8] text-[#f3efe6] px-6 sm:px-7 py-3.5 rounded-md font-semibold text-[11px] tracking-wide uppercase transition-all duration-200 bg-[#141312]/50 backdrop-blur-sm">
+                Our Services <ChevronRight className="w-4 h-4 text-[#c5a880]" />
               </Link>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.3, duration: 0.8 }} className="flex flex-wrap items-center justify-center gap-4 mt-12">
-              {["20-120 min sessions", "Loyalty Rewards", "Online Booking", "35-Day Reminders", "Owner-Curated Lookbook"].map((p) => (
-                <span key={p} className="text-[#78716c] text-sm border border-[#2e2b26] px-3 py-1.5 rounded-full">{p}</span>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.3, duration: 0.8 }} className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 mt-8 text-xs sm:text-sm text-[#c4b8aa]">
+              {["Personalised care", "All styles welcome"].map((p) => (
+                <span key={p} className="inline-flex items-center gap-2"><span className="text-[#c5a880]">✦</span>{p}</span>
               ))}
             </motion.div>
+            </div>
+
+            <motion.aside initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7, duration: 0.8 }} className="hidden lg:flex min-h-[440px] items-end justify-end pb-10">
+              <Link href="/about" className="group flex items-center gap-3 text-right text-white hover:text-[#dfc8a8] transition-colors">
+                <span className="text-[10px] font-semibold uppercase tracking-[.2em]">Discover our salon story</span>
+                <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#dfc8a8]/75 bg-[#0d0c0b]/35 transition-all group-hover:bg-[#c5a880] group-hover:text-[#141312]"><Play className="ml-0.5 h-4 w-4" /></span>
+              </Link>
+            </motion.aside>
           </div>
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-10 left-1/2 -translate-x-1/2">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:block">
             <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="w-6 h-10 border-2 border-[#c5a880]/40 rounded-full flex items-start justify-center pt-2">
               <div className="w-1.5 h-3 bg-[#c5a880] rounded-full" />
             </motion.div>
@@ -99,32 +110,35 @@ export default function HomePage() {
         </section>
 
         {/* STATS BAR */}
-        <section className="bg-[#141312] border-y border-[#2e2b26] py-8">
-          <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {[{ value: 3, suffix: "+", label: "Years in Birtamode" }, { value: 2000, suffix: "+", label: "Happy Clients" }, { value: 4, suffix: "", label: "Expert Stylists" }, { value: 15, suffix: "+", label: "Services Available" }].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-[#c5a880] text-3xl font-bold" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+        <section className="bg-[#11100e] border-y border-[#2e2b26] py-5 sm:py-6">
+          <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-y-5">
+            {[{ value: 3, suffix: "+", label: "Years in Birtamode", icon: CalendarDays }, { value: 2000, suffix: "+", label: "Happy Clients", icon: Users }, { value: 4, suffix: "", label: "Expert Stylists", icon: Scissors }, { value: 15, suffix: "+", label: "Services Available", icon: Award }].map((stat, i) => (
+              <div key={stat.label} className={`flex items-center justify-center gap-3 text-left ${i % 2 === 0 ? "lg:border-r lg:border-[#2e2b26]" : ""} ${i < 2 ? "sm:border-b sm:border-[#2e2b26] sm:pb-5 lg:border-b-0 lg:pb-0" : ""}`}>
+                <stat.icon className="h-6 w-6 shrink-0 text-[#c5a880]" strokeWidth={1.4} />
+                <div><p className="text-[#e2c79c] text-2xl sm:text-3xl font-semibold leading-none" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   <AnimatedCounter to={stat.value} suffix={stat.suffix} />
-                </p>
-                <p className="text-[#78716c] text-sm mt-1">{stat.label}</p>
+                </p><p className="text-[#a99c8e] text-[9px] sm:text-[10px] mt-1 uppercase tracking-[.12em]">{stat.label}</p></div>
               </div>
             ))}
           </div>
         </section>
 
         {/* SERVICES HIGHLIGHTS */}
-        <section className="py-24 px-4 max-w-7xl mx-auto">
-          <FadeIn className="text-center mb-16">
+        <section className="py-16 sm:py-20 px-4 max-w-7xl mx-auto">
+          <FadeIn className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 mb-8 sm:mb-10">
+            <div>
             <span className="text-[#c5a880] text-xs font-semibold tracking-[0.25em] uppercase">Our Craft</span>
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mt-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Services Built for Everyone</h2>
-            <p className="text-[#78716c] text-base mt-4 max-w-xl mx-auto">Six curated categories, countless ways to elevate your style.</p>
+            <h2 className="text-4xl sm:text-5xl font-semibold text-white mt-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Beauty. Care. Expertise.</h2>
+            <p className="text-[#a99c8e] text-sm mt-2 max-w-xl">A considered menu of services, tailored to your style.</p>
+            </div>
+            <Link href="/services" className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[.15em] text-[#dfc8a8] border border-[#806b4e] px-4 py-3 rounded-sm hover:bg-[#c5a880] hover:text-[#141312] transition-colors">View all services <ArrowUpRight className="w-4 h-4" /></Link>
           </FadeIn>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {serviceHighlights.map((s, i) => (
               <FadeIn key={s.name} delay={i * 0.1}>
                 <div className="group glass-card glass-card-hover rounded-2xl overflow-hidden">
                   <div className="relative h-52 overflow-hidden">
-                    <Image src={s.image} alt={s.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" quality={72} className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <Image src={s.image} alt={s.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" quality={72} className="object-cover group-hover:scale-105 transition-transform duration-500" onError={(event) => { event.currentTarget.style.display = "none"; }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b] via-transparent to-transparent" />
                     <span className="absolute top-3 left-3 text-2xl">{s.icon}</span>
                     <span className="absolute top-3 right-3 bg-[#c5a880]/20 text-[#c5a880] text-xs px-2 py-1 rounded-full border border-[#c5a880]/30">{s.category}</span>
@@ -325,6 +339,7 @@ export default function HomePage() {
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       quality={70}
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(event) => { event.currentTarget.style.display = "none"; }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b]/90 via-[#0d0c0b]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
@@ -353,40 +368,46 @@ export default function HomePage() {
 
         <HomeTestimonials />
 
-        {/* LOCATION TEASER */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto glass-card rounded-3xl overflow-hidden">
-            <div className="grid md:grid-cols-2">
-              <div className="p-8 lg:p-12 flex flex-col justify-center">
-                <FadeIn>
-                  <span className="text-[#c5a880] text-xs font-semibold tracking-[0.25em] uppercase mb-4 block">Visit Us</span>
-                  <h2 className="text-3xl font-bold text-white mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Find Us in Birtamode</h2>
-                  <div className="space-y-3 text-sm text-[#78716c]">
-                    <div className="flex gap-3"><span>📍 Ratan Complex, Bhadrapur Bus Stand, Birtamode, Jhapa, Nepal</span></div>
-                    <div className="flex gap-3"><span>🕐 Mon-Fri: 9 AM - 8 PM · Sat-Sun: 8 AM - 9 PM</span></div>
-                  </div>
-                  <Link href="/contact" className="inline-flex items-center gap-2 mt-6 bg-[#c5a880] text-[#141312] px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#d4b898] transition-colors">
-                    Get Directions <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </FadeIn>
+        {/* SALON STORY & LOCATION */}
+        <section className="py-16 sm:py-20 px-4">
+          <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 lg:gap-14 items-center">
+            <FadeIn className="relative min-h-[300px] sm:min-h-[420px] rounded-sm overflow-hidden bg-gradient-to-br from-[#4a3527] via-[#221a15] to-[#0d0c0b]">
+              <Image src={heroImage} alt="Salon interior and barber stations at Uptown Hair" fill sizes="(max-width: 768px) 100vw, 50vw" quality={75} className="object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              <span className="absolute bottom-4 left-4 text-[10px] font-medium uppercase tracking-[.18em] text-white/85">Uptown Hair · Birtamode</span>
+            </FadeIn>
+            <FadeIn direction="left">
+              <span className="text-[#c5a880] text-[10px] font-semibold tracking-[.24em] uppercase">A salon for your style</span>
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white mt-3 leading-[.98]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Where passion<br />meets perfection.</h2>
+              <p className="text-[#b7aa9c] text-sm leading-[1.85] mt-5 max-w-xl">At Uptown Hair, every visit starts with listening. Our team brings together thoughtful consultation, skilled hands, and a full menu of cuts, colour, grooming, and care.</p>
+              <div className="grid grid-cols-2 gap-3 mt-6">
+                {["Personalised consultation", "Care for every texture", "A skilled salon team", "For everyone"].map((item) => (
+                  <span key={item} className="flex items-center gap-2 text-[11px] text-[#d0c5b9]"><Sparkles className="w-3.5 h-3.5 text-[#c5a880] shrink-0" />{item}</span>
+                ))}
               </div>
-              <div className="relative h-64 md:h-auto">
-                <Image src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&auto=format&fit=crop&q=75" alt="Hair styling studio at Uptown Hair Unisex Salon" fill sizes="(max-width: 768px) 100vw, 50vw" quality={72} className="object-cover" />
+              <div className="mt-7 border-t border-[#2e2b26] pt-5 space-y-3 text-xs text-[#b7aa9c]">
+                <p className="flex items-start gap-2"><MapPin className="w-4 h-4 text-[#c5a880] shrink-0" /> Ratan Complex, Bhadrapur Bus Stand, Birtamode, Jhapa</p>
+                <p className="flex items-start gap-2"><Clock className="w-4 h-4 text-[#c5a880] shrink-0" /> Mon–Fri 9 AM–8 PM · Sat–Sun 8 AM–9 PM</p>
               </div>
-            </div>
+              <div className="flex flex-wrap gap-3 mt-6">
+                <Link href="/about" className="inline-flex items-center gap-2 border border-[#806b4e] px-4 py-3 text-[10px] font-semibold uppercase tracking-[.13em] text-[#e2c79c] hover:bg-[#c5a880] hover:text-[#141312] transition-colors">More about us <ArrowUpRight className="w-4 h-4" /></Link>
+                <Link href="/contact" className="inline-flex items-center gap-2 px-4 py-3 text-[10px] font-semibold uppercase tracking-[.13em] text-[#b7aa9c] hover:text-white transition-colors">Get directions <ChevronRight className="w-4 h-4" /></Link>
+              </div>
+            </FadeIn>
           </div>
         </section>
 
         {/* CTA BANNER */}
-        <section className="py-20 px-4">
+        <section className="py-14 sm:py-20 px-4">
           <FadeIn>
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-4xl sm:text-6xl font-bold text-white mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                Ready for Your <span className="text-gold-gradient">Transformation?</span>
-              </h2>
-              <p className="text-[#78716c] text-lg mb-8 max-w-xl mx-auto">Book in seconds. Walk out confident. Come back in 35 days to keep your Style Streak alive.</p>
-              <Link href="/book" className="inline-flex items-center justify-center gap-3 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-6 sm:px-10 py-5 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 shadow-2xl shadow-[#c5a880]/30 hover:-translate-y-1">
-                <Scissors className="w-6 h-6" /> Book Your Appointment
+            <div className="max-w-7xl mx-auto grid sm:grid-cols-[auto_1fr_auto] items-center gap-5 sm:gap-8 rounded-sm border border-[#2e2b26] bg-gradient-to-r from-[#171411] to-[#100f0d] px-5 py-6 sm:px-8 sm:py-7">
+              <span className="hidden sm:flex w-14 h-14 items-center justify-center rounded-full border border-[#806b4e] text-[#dfc8a8]"><CalendarDays className="w-6 h-6" /></span>
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-semibold text-white leading-none" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Ready for a new you?</h2>
+                <p className="text-[#a99c8e] text-xs sm:text-sm mt-2">Choose your service and let our team take it from there.</p>
+              </div>
+              <Link href="/book" className="inline-flex items-center justify-center gap-2 bg-[#c5a880] hover:bg-[#dfc8a8] text-[#141312] px-6 py-3.5 rounded-sm font-bold text-[10px] tracking-[.12em] uppercase transition-colors">
+                Book Appointment <ArrowUpRight className="w-4 h-4" />
               </Link>
             </div>
           </FadeIn>
