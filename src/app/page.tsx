@@ -4,28 +4,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import HomeTestimonials from "@/app/home-testimonials";
-import { Award, ArrowUpRight, CalendarDays, ChevronRight, Clock, Compass, MapPin, Play, Scissors, Sparkles, Users } from "lucide-react";
+import { ArrowUpRight, CalendarDays, ChevronRight, Clock, Compass, MapPin, Play, Scissors, Sparkles } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MobileBookBar from "@/components/layout/MobileBookBar";
-import { FadeIn, AnimatedCounter } from "@/components/motion/FadeIn";
+import { FadeIn } from "@/components/motion/FadeIn";
 import { useAuth } from "@/context/AuthContext";
 import { formatCurrency } from "@/lib/utils";
-import type { GalleryPhoto } from "@/lib/types";
+import { salonService } from "@/services/salonService";
+import type { GalleryPhoto, Service } from "@/lib/types";
 
 const heroImage = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1600&auto=format&fit=crop&q=75";
 const heroPortrait = "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=1600&auto=format&fit=crop&q=80";
 
-const serviceHighlights = [
-  { name: "Precision Barber Cut", category: "Short Cuts", price: 450, icon: "✂️", image: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&auto=format&fit=crop&q=80" },
-  { name: "Full Dimension Balayage", category: "Color", price: 4500, icon: "🎨", image: "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=600&auto=format&fit=crop&q=80" },
-  { name: "Sculpted Beard & Razor Edge", category: "Beard Trim", price: 350, icon: "🪒", image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&auto=format&fit=crop&q=80" },
-  { name: "Keratin Smooth Gloss", category: "Treatments", price: 4200, icon: "✨", image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&auto=format&fit=crop&q=80" },
-  { name: "Luxe Moroccan Oil Blowout", category: "Styling", price: 750, icon: "✧", image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&auto=format&fit=crop&q=80" },
-];
-
 export default function HomePage() {
   const [homePhotos, setHomePhotos] = useState<GalleryPhoto[]>([]);
+  const [homeServices, setHomeServices] = useState<Service[]>([]);
   const { user } = useAuth();
   const isOwner = user?.role === "OWNER";
 
@@ -44,6 +38,16 @@ export default function HomePage() {
     return () => {
       active = false;
     };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    salonService.getServices().then((data) => {
+      if (active) setHomeServices((data.services || []).slice(0, 5));
+    }).catch(() => {
+      if (active) setHomeServices([]);
+    });
+    return () => { active = false; };
   }, []);
 
   return (
@@ -109,17 +113,12 @@ export default function HomePage() {
           </motion.div>
         </section>
 
-        {/* STATS BAR */}
-        <section className="bg-[#11100e] border-y border-[#2e2b26] py-5 sm:py-6">
-          <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-y-5">
-            {[{ value: 3, suffix: "+", label: "Years in Birtamode", icon: CalendarDays }, { value: 2000, suffix: "+", label: "Happy Clients", icon: Users }, { value: 4, suffix: "", label: "Expert Stylists", icon: Scissors }, { value: 15, suffix: "+", label: "Services Available", icon: Award }].map((stat, i) => (
-              <div key={stat.label} className={`flex items-center justify-center gap-3 text-left ${i % 2 === 0 ? "lg:border-r lg:border-[#2e2b26]" : ""} ${i < 2 ? "sm:border-b sm:border-[#2e2b26] sm:pb-5 lg:border-b-0 lg:pb-0" : ""}`}>
-                <stat.icon className="h-6 w-6 shrink-0 text-[#c5a880]" strokeWidth={1.4} />
-                <div><p className="text-[#e2c79c] text-2xl sm:text-3xl font-semibold leading-none" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                  <AnimatedCounter to={stat.value} suffix={stat.suffix} />
-                </p><p className="text-[#a99c8e] text-[9px] sm:text-[10px] mt-1 uppercase tracking-[.12em]">{stat.label}</p></div>
-              </div>
-            ))}
+        {/* VISIT DETAILS */}
+        <section aria-label="Plan your visit" className="border-y border-[#2e2b26] bg-[#11100e]">
+          <div className="mx-auto grid max-w-6xl gap-4 px-5 py-5 sm:grid-cols-3 sm:gap-8 sm:py-6">
+            <div className="flex items-center gap-3"><MapPin className="h-5 w-5 shrink-0 text-[#c5a880]" /><div><p className="text-sm font-medium text-[#f3efe6]">Visit us in Birtamode</p><p className="text-xs text-[#b7aa9c]">Ratan Complex, Bhadrapur Bus Stand</p></div></div>
+            <div className="flex items-center gap-3"><Clock className="h-5 w-5 shrink-0 text-[#c5a880]" /><div><p className="text-sm font-medium text-[#f3efe6]">Open daily, 9 AM–8 PM</p><p className="text-xs text-[#b7aa9c]">Hours may vary on special occasions</p></div></div>
+            <div className="flex items-center gap-3"><CalendarDays className="h-5 w-5 shrink-0 text-[#c5a880]" /><div><p className="text-sm font-medium text-[#f3efe6]">Choose a time that suits you</p><p className="text-xs text-[#b7aa9c]">See available services and slots online</p></div></div>
           </div>
         </section>
 
@@ -134,20 +133,19 @@ export default function HomePage() {
             <Link href="/services" className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[.15em] text-[#dfc8a8] border border-[#806b4e] px-4 py-3 rounded-sm hover:bg-[#c5a880] hover:text-[#141312] transition-colors">View all services <ArrowUpRight className="w-4 h-4" /></Link>
           </FadeIn>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            {serviceHighlights.map((s, i) => (
-              <FadeIn key={s.name} delay={i * 0.1}>
+            {homeServices.map((s, i) => (
+              <FadeIn key={s.id} delay={i * 0.1}>
                 <div className="group glass-card glass-card-hover rounded-2xl overflow-hidden">
                   <div className="relative h-52 overflow-hidden">
                     <Image src={s.image} alt={s.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" quality={72} className="object-cover group-hover:scale-105 transition-transform duration-500" onError={(event) => { event.currentTarget.style.display = "none"; }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b] via-transparent to-transparent" />
-                    <span className="absolute top-3 left-3 text-2xl">{s.icon}</span>
                     <span className="absolute top-3 right-3 bg-[#c5a880]/20 text-[#c5a880] text-xs px-2 py-1 rounded-full border border-[#c5a880]/30">{s.category}</span>
                   </div>
                   <div className="p-5">
                     <h3 className="text-white font-semibold text-base">{s.name}</h3>
                     <div className="flex items-center justify-between mt-3">
                       <span className="text-[#c5a880] font-bold">{formatCurrency(s.price)}</span>
-                      <Link href="/book" className="text-[#78716c] hover:text-[#c5a880] text-xs font-medium flex items-center gap-1 transition-colors">
+                      <Link href={`/book?service=${s.id}`} className="text-[#78716c] hover:text-[#c5a880] text-xs font-medium flex items-center gap-1 transition-colors">
                         Book <ChevronRight className="w-3 h-3" />
                       </Link>
                     </div>
@@ -156,79 +154,35 @@ export default function HomePage() {
               </FadeIn>
             ))}
           </div>
+          {homeServices.length === 0 && <p className="rounded-lg border border-[#2e2b26] px-5 py-8 text-center text-sm text-[#b7aa9c]">Explore the full service menu to see current offerings and prices.</p>}
           <FadeIn className="text-center mt-10">
             <Link href="/services" className="inline-flex items-center gap-2 border border-[#2e2b26] hover:border-[#c5a880] text-[#e0d8cd] px-6 py-3 rounded-xl text-sm font-medium transition-all">
-              View All 15 Services <ChevronRight className="w-4 h-4" />
+              Browse the full service menu <ChevronRight className="w-4 h-4" />
             </Link>
           </FadeIn>
         </section>
 
-        {/* UNIQUE FEATURE: STYLE STREAK */}
-        <section className="py-20 px-4 bg-[#0f0e0d]">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        {/* CLIENT LOYALTY */}
+        <section className="bg-[#0f0e0d] px-4 py-16 sm:py-20">
+          <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[1.15fr_.85fr] lg:gap-16">
             <FadeIn direction="right">
-              <span className="text-[#c86d51] text-xs font-semibold tracking-[0.25em] uppercase">Unique Feature</span>
-              <h2 className="text-4xl sm:text-5xl font-bold text-white mt-3 leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                Build Your <br /><span className="text-terracotta-gradient">Style Streak 🔥</span>
-              </h2>
-              <p className="text-[#78716c] text-base mt-5 leading-relaxed max-w-lg">
-                Come back within 35-40 days of your last cut to keep your streak alive. Each visit earns loyalty points, and every 4th consecutive visit unlocks a free add-on or discount.
-              </p>
-              <div className="mt-8 space-y-4">
-                {[{ icon: "🔥", text: "Streak Bonus Points — 20 extra on every return visit within the window" }, { icon: "🎁", text: "4th Visit Perk — Free beard trim, conditioning mask, or scalp treatment" }, { icon: "🏆", text: "Milestone Badges — Style Icon, Consistent Groomer, Ratan VIP Club" }, { icon: "📲", text: "Smart Reminder — Auto alert 35 days after your last cut" }].map((item) => (
-                  <div key={item.icon} className="flex items-start gap-3">
-                    <span className="text-xl">{item.icon}</span>
-                    <p className="text-[#b0a090] text-sm leading-relaxed">{item.text}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-8 flex items-center gap-4">
-                <Link href="/auth" className="bg-[#c86d51] hover:bg-[#d47a5e] text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#c86d51]/25">Start Your Streak</Link>
-                <Link href="/dashboard" className="text-[#c5a880] text-sm font-medium hover:underline">View Dashboard →</Link>
+              <span className="text-xs font-semibold uppercase tracking-[.22em] text-[#c5a880]">A little extra for coming back</span>
+              <h2 className="mt-3 text-4xl font-semibold leading-tight text-white sm:text-5xl" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Good hair days add up.</h2>
+              <p className="mt-4 max-w-xl text-sm leading-relaxed text-[#b7aa9c] sm:text-base">Your account keeps your appointments, loyalty points, and visit streak together. Sign in any time to see your own progress and upcoming visits.</p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link href={user ? "/dashboard" : "/auth"} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#c5a880] px-5 py-3 text-sm font-semibold text-[#141312] transition-colors hover:bg-[#dfc8a8]">{user ? "View your account" : "Sign in to your account"}<ArrowUpRight className="h-4 w-4" /></Link>
+                {!user && <Link href="/auth" className="inline-flex min-h-11 items-center rounded-md border border-[#51483e] px-5 py-3 text-sm font-medium text-[#e0d8cd] transition-colors hover:border-[#c5a880]">Create an account</Link>}
               </div>
             </FadeIn>
-
-            <FadeIn direction="left" delay={0.2}>
-              <div className="glass-card rounded-3xl p-8 bg-streak-glow">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <p className="text-[#78716c] text-sm">Your Style Streak</p>
-                    <p className="text-white text-5xl font-bold mt-1 flex items-center gap-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                      3 <span className="flame-animated text-4xl">🔥</span>
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[#78716c] text-sm">Loyalty Points</p>
-                    <p className="text-[#c5a880] text-3xl font-bold mt-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>145</p>
-                  </div>
+            <FadeIn direction="left" delay={0.1}>
+              <div className="rounded-xl border border-[#3a3329] bg-[#171513] p-6 sm:p-8">
+                <div className="flex items-start justify-between gap-4">
+                  <div><p className="text-xs uppercase tracking-[.14em] text-[#a99c8e]">{user ? "Your Style Streak" : "Client account"}</p><p className="mt-2 text-3xl font-semibold text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{user ? `${user.styleStreak || 0} visits` : "All in one place"}</p></div>
+                  <Scissors className="h-6 w-6 text-[#c5a880]" aria-hidden="true" />
                 </div>
-                <div className="mb-6">
-                  <div className="flex justify-between text-xs text-[#78716c] mb-2">
-                    <span>Progress to Free Beard Trim</span><span>3/4 visits</span>
-                  </div>
-                  <div className="h-2 bg-[#2e2b26] rounded-full overflow-hidden">
-                    <motion.div initial={{ width: 0 }} animate={{ width: "75%" }} transition={{ duration: 1.5, delay: 0.5 }} className="h-full rounded-full" style={{ background: "linear-gradient(to right, #c86d51, #f29a7e)" }} />
-                  </div>
-                </div>
-                <div className="flex gap-3 mb-6">
-                  {[{ icon: "✂️", label: "Fresh Beginnings" }, { icon: "⏱️", label: "35-Day Precision" }].map((b) => (
-                    <div key={b.label} className="flex-1 bg-[#c5a880]/10 border border-[#c5a880]/20 rounded-xl p-3 text-center">
-                      <span className="text-2xl">{b.icon}</span>
-                      <p className="text-[#c5a880] text-xs mt-1 font-medium">{b.label}</p>
-                    </div>
-                  ))}
-                  <div className="flex-1 bg-[#78716c]/10 border border-dashed border-[#78716c]/30 rounded-xl p-3 text-center opacity-60">
-                    <span className="text-2xl">🔥</span>
-                    <p className="text-[#78716c] text-xs mt-1 font-medium">Style Icon</p>
-                  </div>
-                </div>
-                <div className="bg-[#c86d51]/10 border border-[#c86d51]/30 rounded-xl p-4 flex items-start gap-3">
-                  <span className="text-[#c86d51] text-lg">💈</span>
-                  <div>
-                    <p className="text-[#f0d0c0] text-sm font-semibold">Time for a Fresh Look!</p>
-                    <p className="text-[#c86d51] text-xs mt-0.5">37 days since last cut — visit now to keep your streak!</p>
-                  </div>
-                </div>
+                <div className="my-5 h-px bg-[#332f29]" />
+                <p className="text-sm leading-relaxed text-[#b7aa9c]">{user ? `${user.loyaltyPoints} loyalty points · Your appointment history and account details are ready to view.` : "Keep track of appointments and loyalty points, and book your next visit when you’re ready."}</p>
+                <Link href={user ? "/dashboard" : "/auth"} className="mt-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-[#dfc8a8] hover:text-white">{user ? "Go to dashboard" : "Explore your account"}<ChevronRight className="h-4 w-4" /></Link>
               </div>
             </FadeIn>
           </div>
