@@ -45,3 +45,5 @@ next-env.d.ts
 
 # raw image assets (served from /public instead)
 /image/
+
+.vercel
