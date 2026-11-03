@@ -16,7 +16,7 @@ export async function PATCH(request: Request) {
   if (!identity) return NextResponse.json({ error: "Please sign in to update your profile." }, { status: 401 });
 
   try {
-    if (Number(request.headers.get("content-length") || 0) > 4096) {
+    if (Number(request.headers.get("content-length") || 0) > 450_000) {
       return NextResponse.json({ error: "Profile details are too large." }, { status: 413 });
     }
     const body = await request.json();
@@ -25,6 +25,7 @@ export async function PATCH(request: Request) {
     const birthday = typeof body.birthday === "string" ? body.birthday.trim() : "";
     const gender = body.gender;
     const preferredChannel = body.preferredChannel;
+    const profilePhotoUrl = body.profilePhotoUrl;
 
     if (!fullName || fullName.length > 100) {
       return NextResponse.json({ error: "Enter your name (up to 100 characters)." }, { status: 400 });
@@ -41,6 +42,17 @@ export async function PATCH(request: Request) {
     if (preferredChannel !== undefined && !channels.includes(preferredChannel)) {
       return NextResponse.json({ error: "Choose a valid way to receive updates." }, { status: 400 });
     }
+    if (profilePhotoUrl !== undefined && profilePhotoUrl !== null) {
+      if (typeof profilePhotoUrl !== "string" || profilePhotoUrl.length > 410_000) {
+        return NextResponse.json({ error: "Choose a smaller profile photo (300 KB maximum after resizing)." }, { status: 400 });
+      }
+      const match = /^data:image\/jpeg;base64,([A-Za-z0-9+/]+={0,2})$/.exec(profilePhotoUrl);
+      if (!match) return NextResponse.json({ error: "Upload a JPEG, PNG, or WebP profile photo." }, { status: 400 });
+      const imageBytes = Buffer.from(match[1], "base64");
+      if (imageBytes.length > 300 * 1024 || imageBytes.length < 4 || imageBytes[0] !== 0xff || imageBytes[1] !== 0xd8 || imageBytes[2] !== 0xff) {
+        return NextResponse.json({ error: "That photo could not be verified. Please choose another image." }, { status: 400 });
+      }
+    }
 
     const db = readDatabase();
     const user = db.users.find((item) => item.id === identity.user.id);
@@ -54,6 +66,7 @@ export async function PATCH(request: Request) {
     user.birthday = birthday || undefined;
     if (gender !== undefined) user.gender = gender;
     if (preferredChannel !== undefined) user.preferredChannel = preferredChannel;
+    if (profilePhotoUrl !== undefined) user.profilePhotoUrl = typeof profilePhotoUrl === "string" ? profilePhotoUrl : undefined;
     writeDatabase(db);
 
     return NextResponse.json({ success: true, user: getSafeUser(user) });

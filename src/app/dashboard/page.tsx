@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Scissors, Calendar, Gift, Bell, Share2, LogOut, Award, CheckCircle, Sparkles, Shield, TrendingUp, FileText, ChevronRight, Clock3, ArrowUpRight, MapPin, RefreshCw, Pencil } from "lucide-react";
+import { Scissors, Calendar, Gift, Bell, Share2, LogOut, Award, CheckCircle, Sparkles, Shield, TrendingUp, FileText, ChevronRight, Clock3, ArrowUpRight, MapPin, RefreshCw, Pencil, Camera, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/layout/Navbar";
@@ -28,7 +28,9 @@ function DashboardContent() {
   const [canceling, setCanceling] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
-  const [profileForm, setProfileForm] = useState({ fullName: "", phone: "", birthday: "", gender: "prefer-not-to-say", preferredChannel: "whatsapp" });
+  const [photoProcessing, setPhotoProcessing] = useState(false);
+  const [photoChanged, setPhotoChanged] = useState(false);
+  const [profileForm, setProfileForm] = useState({ fullName: "", phone: "", birthday: "", gender: "prefer-not-to-say", preferredChannel: "whatsapp", profilePhotoUrl: "" });
   const toast = useToast();
 
   useEffect(() => {
@@ -124,8 +126,43 @@ function DashboardContent() {
   const unreadNotifications = notifications.filter((notification) => notification.status !== "read").length;
 
   const openProfileEditor = () => {
-    setProfileForm({ fullName: user.fullName, phone: user.phone, birthday: user.birthday || "", gender: user.gender || "prefer-not-to-say", preferredChannel: user.preferredChannel || "whatsapp" });
+    setProfileForm({ fullName: user.fullName, phone: user.phone, birthday: user.birthday || "", gender: user.gender || "prefer-not-to-say", preferredChannel: user.preferredChannel || "whatsapp", profilePhotoUrl: user.profilePhotoUrl || "" });
+    setPhotoChanged(false);
     setProfileOpen(true);
+  };
+
+  const chooseProfilePhoto = async (file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/") || !["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 10 * 1024 * 1024) {
+      toast.error("Choose a JPEG, PNG, or WebP image under 10 MB.", "Photo not accepted");
+      return;
+    }
+    setPhotoProcessing(true);
+    try {
+      const image = await createImageBitmap(file);
+      const scale = Math.min(1, 640 / Math.max(image.width, image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Image preview is unavailable.");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      image.close();
+      const compressed = await new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Photo could not be prepared.")), "image/jpeg", 0.78));
+      if (compressed.size > 300 * 1024) throw new Error("This photo is still too large after compression. Choose a smaller image.");
+      const reader = new FileReader();
+      const photoData = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Photo could not be read."));
+        reader.onerror = () => reject(new Error("Photo could not be read."));
+        reader.readAsDataURL(compressed);
+      });
+      setProfileForm((form) => ({ ...form, profilePhotoUrl: photoData }));
+      setPhotoChanged(true);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Try another image.", "Photo could not be added");
+    } finally {
+      setPhotoProcessing(false);
+    }
   };
 
   const saveProfile = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -136,7 +173,7 @@ function DashboardContent() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(profileForm),
+        body: JSON.stringify({ ...profileForm, ...(photoChanged ? { profilePhotoUrl: profileForm.profilePhotoUrl || null } : { profilePhotoUrl: undefined }) }),
       });
       const result = await response.json();
       if (!response.ok) {
@@ -449,10 +486,26 @@ function DashboardContent() {
         isOpen={profileOpen}
         onClose={() => { if (!profileSaving) setProfileOpen(false); }}
         title="Your profile"
-        description="Keep your contact details and salon updates up to date. Your email is used to sign in and can’t be changed here."
+        description="Update your photo, contact details, and salon updates. Your email is used to sign in and can’t be changed here."
         maxWidth="md"
       >
         <form onSubmit={(event) => void saveProfile(event)} className="space-y-4">
+          <div className="flex items-center gap-4 rounded-lg border border-[#3b352c] bg-[#141312] p-4">
+            <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#c5a880]/50 bg-[#2b241b] text-xl font-semibold text-[#dfc8a8]">
+              {profileForm.profilePhotoUrl ? <Image src={profileForm.profilePhotoUrl} alt="Profile photo preview" fill sizes="64px" unoptimized className="object-cover" /> : user.fullName.trim().charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-white">Profile photo</p>
+              <p className="mt-1 text-xs leading-relaxed text-[#8f8579]">JPEG, PNG, or WebP · up to 10 MB. We’ll resize it before saving.</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <label className={`inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-[#51483e] px-3 py-2 text-xs font-medium text-[#dfc8a8] transition-colors hover:border-[#c5a880] ${photoProcessing ? "pointer-events-none opacity-60" : ""}`}>
+                  <Camera className="h-3.5 w-3.5" />{photoProcessing ? "Preparing photo…" : profileForm.profilePhotoUrl ? "Change photo" : "Upload photo"}
+                  <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" aria-label="Upload profile photo" disabled={photoProcessing || profileSaving} onChange={(event) => { void chooseProfilePhoto(event.target.files?.[0]); event.currentTarget.value = ""; }} />
+                </label>
+                {profileForm.profilePhotoUrl && <button type="button" disabled={profileSaving || photoProcessing} onClick={() => { setProfileForm((form) => ({ ...form, profilePhotoUrl: "" })); setPhotoChanged(true); }} className="inline-flex min-h-10 items-center gap-1 rounded-lg px-3 py-2 text-xs text-[#a99c8e] hover:text-red-300 disabled:opacity-50"><X className="h-3.5 w-3.5" />Remove</button>}
+              </div>
+            </div>
+          </div>
           <label className="block text-sm text-[#d0c5b9]">Full name <span className="text-red-300" aria-hidden="true">*</span>
             <input required maxLength={100} autoComplete="name" value={profileForm.fullName} onChange={(event) => setProfileForm((form) => ({ ...form, fullName: event.target.value }))} className="mt-1.5 min-h-11 w-full rounded-lg border border-[#51483e] bg-[#141312] px-3 py-2 text-sm text-white outline-none focus:border-[#c5a880] focus:ring-2 focus:ring-[#c5a880]/20" />
           </label>
@@ -473,7 +526,7 @@ function DashboardContent() {
           </label>
           <div className="flex flex-col-reverse gap-2 border-t border-[#3b352c] pt-4 sm:flex-row sm:justify-end">
             <button type="button" disabled={profileSaving} onClick={() => setProfileOpen(false)} className="min-h-11 rounded-lg border border-[#51483e] px-4 py-2 text-sm text-[#d0c5b9] hover:border-[#c5a880] disabled:opacity-50">Cancel</button>
-            <button type="submit" disabled={profileSaving} className="min-h-11 rounded-lg bg-[#c5a880] px-4 py-2 text-sm font-semibold text-[#141312] transition-colors hover:bg-[#dfc8a8] disabled:cursor-wait disabled:opacity-60">{profileSaving ? "Saving…" : "Save profile"}</button>
+            <button type="submit" disabled={profileSaving || photoProcessing} className="min-h-11 rounded-lg bg-[#c5a880] px-4 py-2 text-sm font-semibold text-[#141312] transition-colors hover:bg-[#dfc8a8] disabled:cursor-wait disabled:opacity-60">{profileSaving ? "Saving…" : "Save profile"}</button>
           </div>
         </form>
       </Modal>
