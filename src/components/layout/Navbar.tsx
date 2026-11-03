@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Menu, X, Scissors, Bell, User, ChevronDown, LogOut, Moon, Search, Sun } from "lucide-react";
@@ -28,6 +29,7 @@ const homeNavLinks = [
 ];
 
 export default function Navbar({ showAnnouncement = false }: { showAnnouncement?: boolean }) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -236,7 +238,7 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
                             </Link>
                           )}
                           <button
-                            onClick={() => { logout(); setUserMenuOpen(false); }}
+                            onClick={async () => { setUserMenuOpen(false); await logout(); router.push("/auth"); }}
                             className="flex items-center gap-3 w-full px-4 py-3 text-[#c86d51] hover:bg-[#2e2b26]/40 text-sm transition-colors border-t border-[#2e2b26]"
                           >
                             <LogOut className="w-4 h-4" /> Sign Out
@@ -306,7 +308,7 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
                         </Link>
                       )}
                       <Link href="/dashboard" className="block text-[#c5a880] font-medium py-1" onClick={() => setIsOpen(false)}>My Dashboard 🔥 {user.styleStreak}</Link>
-                      <button onClick={() => { logout(); setIsOpen(false); }} className="text-[#c86d51] text-sm">Sign Out</button>
+                      <button onClick={async () => { setIsOpen(false); await logout(); router.push("/auth"); }} className="text-[#c86d51] text-sm">Sign Out</button>
                     </>
                   ) : (
                     <Link href="/auth" className="block text-[#e0d8cd] font-medium py-1" onClick={() => setIsOpen(false)}>Sign In</Link>

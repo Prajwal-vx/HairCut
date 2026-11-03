@@ -227,7 +227,7 @@ function DashboardContent() {
                 {(user.role === "ADMIN" || user.role === "OWNER" || user.isAdmin) && (
                   <Link href="/admin" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#51483e] px-4 py-2.5 text-sm text-[#dfc8a8] transition-colors hover:border-[#c5a880]">Admin portal</Link>
                 )}
-                <button type="button" aria-label="Sign out" title="Sign out" onClick={() => { logout(); router.push("/"); }} className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[#51483e] text-[#b7aa9c] transition-colors hover:border-red-400/60 hover:text-red-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#dfc8a8]">
+                <button type="button" aria-label="Sign out" title="Sign out" onClick={async () => { await logout(); router.push("/auth"); }} className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[#51483e] text-[#b7aa9c] transition-colors hover:border-red-400/60 hover:text-red-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#dfc8a8]">
                   <LogOut className="h-4 w-4" />
                 </button>
               </div>
