@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Scissors, Calendar, Gift, Bell, Share2, LogOut, Award, CheckCircle, Sparkles, Shield, TrendingUp, FileText, ChevronRight, Clock3, ArrowUpRight, MapPin, RefreshCw } from "lucide-react";
+import { Scissors, Calendar, Gift, Bell, Share2, LogOut, Award, CheckCircle, Sparkles, Shield, TrendingUp, FileText, ChevronRight, Clock3, ArrowUpRight, MapPin, RefreshCw, Pencil } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/layout/Navbar";
@@ -17,7 +17,7 @@ import { useToast } from "@/context/ToastContext";
 import { Modal } from "@/components/ui/Modal";
 
 function DashboardContent() {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading, refreshUser } = useAuth();
   const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [notifications, setNotifications] = useState<NotificationLog[]>([]);
@@ -26,6 +26,9 @@ function DashboardContent() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [cancelTarget, setCancelTarget] = useState<Appointment | null>(null);
   const [canceling, setCanceling] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileForm, setProfileForm] = useState({ fullName: "", phone: "", birthday: "", gender: "prefer-not-to-say", preferredChannel: "whatsapp" });
   const toast = useToast();
 
   useEffect(() => {
@@ -120,6 +123,36 @@ function DashboardContent() {
 
   const unreadNotifications = notifications.filter((notification) => notification.status !== "read").length;
 
+  const openProfileEditor = () => {
+    setProfileForm({ fullName: user.fullName, phone: user.phone, birthday: user.birthday || "", gender: user.gender || "prefer-not-to-say", preferredChannel: user.preferredChannel || "whatsapp" });
+    setProfileOpen(true);
+  };
+
+  const saveProfile = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setProfileSaving(true);
+    try {
+      const response = await fetch("/api/auth/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(profileForm),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error(result.error || "Please check your details and try again.", "Profile not saved");
+        return;
+      }
+      await refreshUser();
+      toast.success("Your account details have been updated.", "Profile saved");
+      setProfileOpen(false);
+    } catch {
+      toast.error("Check your connection and try again.", "Profile not saved");
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
   return (
     <main className="min-h-screen pb-24 lg:pb-0">
       <section className="px-4 pb-16 pt-28 sm:pt-32">
@@ -150,6 +183,7 @@ function DashboardContent() {
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                <button type="button" onClick={openProfileEditor} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[#51483e] px-3 py-2.5 text-sm text-[#dfc8a8] transition-colors hover:border-[#c5a880] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#dfc8a8]"><Pencil className="h-3.5 w-3.5" /><span>Edit profile</span></button>
                 <Link href="/book" className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-[#c5a880] px-4 py-2.5 text-sm font-semibold text-[#141312] transition-colors hover:bg-[#dfc8a8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#dfc8a8] sm:flex-none">
                   <Scissors className="h-4 w-4" /> Book a visit
                 </Link>
@@ -411,6 +445,38 @@ function DashboardContent() {
           </div>
         </div>
       </section>
+      <Modal
+        isOpen={profileOpen}
+        onClose={() => { if (!profileSaving) setProfileOpen(false); }}
+        title="Your profile"
+        description="Keep your contact details and salon updates up to date. Your email is used to sign in and can’t be changed here."
+        maxWidth="md"
+      >
+        <form onSubmit={(event) => void saveProfile(event)} className="space-y-4">
+          <label className="block text-sm text-[#d0c5b9]">Full name <span className="text-red-300" aria-hidden="true">*</span>
+            <input required maxLength={100} autoComplete="name" value={profileForm.fullName} onChange={(event) => setProfileForm((form) => ({ ...form, fullName: event.target.value }))} className="mt-1.5 min-h-11 w-full rounded-lg border border-[#51483e] bg-[#141312] px-3 py-2 text-sm text-white outline-none focus:border-[#c5a880] focus:ring-2 focus:ring-[#c5a880]/20" />
+          </label>
+          <label className="block text-sm text-[#d0c5b9]">Phone number <span className="text-red-300" aria-hidden="true">*</span>
+            <input required type="tel" maxLength={32} autoComplete="tel" value={profileForm.phone} onChange={(event) => setProfileForm((form) => ({ ...form, phone: event.target.value }))} className="mt-1.5 min-h-11 w-full rounded-lg border border-[#51483e] bg-[#141312] px-3 py-2 text-sm text-white outline-none focus:border-[#c5a880] focus:ring-2 focus:ring-[#c5a880]/20" />
+          </label>
+          <div className="rounded-lg border border-[#3b352c] bg-[#141312] px-3 py-2.5"><p className="text-xs text-[#8f8579]">Sign-in email</p><p className="mt-1 break-all text-sm text-[#d0c5b9]">{user.email}</p></div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm text-[#d0c5b9]">Birthday <span className="text-xs text-[#8f8579]">(optional)</span>
+              <input type="date" max={new Date().toISOString().slice(0, 10)} value={profileForm.birthday} onChange={(event) => setProfileForm((form) => ({ ...form, birthday: event.target.value }))} className="mt-1.5 min-h-11 w-full rounded-lg border border-[#51483e] bg-[#141312] px-3 py-2 text-sm text-white outline-none focus:border-[#c5a880] focus:ring-2 focus:ring-[#c5a880]/20" />
+            </label>
+            <label className="block text-sm text-[#d0c5b9]">Gender <span className="text-xs text-[#8f8579]">(optional)</span>
+              <select value={profileForm.gender} onChange={(event) => setProfileForm((form) => ({ ...form, gender: event.target.value }))} className="mt-1.5 min-h-11 w-full rounded-lg border border-[#51483e] bg-[#141312] px-3 py-2 text-sm text-white outline-none focus:border-[#c5a880] focus:ring-2 focus:ring-[#c5a880]/20"><option value="prefer-not-to-say">Prefer not to say</option><option value="female">Female</option><option value="male">Male</option><option value="non-binary">Non-binary</option></select>
+            </label>
+          </div>
+          <label className="block text-sm text-[#d0c5b9]">Appointment updates
+            <select value={profileForm.preferredChannel} onChange={(event) => setProfileForm((form) => ({ ...form, preferredChannel: event.target.value }))} className="mt-1.5 min-h-11 w-full rounded-lg border border-[#51483e] bg-[#141312] px-3 py-2 text-sm text-white outline-none focus:border-[#c5a880] focus:ring-2 focus:ring-[#c5a880]/20"><option value="whatsapp">WhatsApp</option><option value="sms">SMS</option><option value="email">Email</option><option value="app">In-app</option></select>
+          </label>
+          <div className="flex flex-col-reverse gap-2 border-t border-[#3b352c] pt-4 sm:flex-row sm:justify-end">
+            <button type="button" disabled={profileSaving} onClick={() => setProfileOpen(false)} className="min-h-11 rounded-lg border border-[#51483e] px-4 py-2 text-sm text-[#d0c5b9] hover:border-[#c5a880] disabled:opacity-50">Cancel</button>
+            <button type="submit" disabled={profileSaving} className="min-h-11 rounded-lg bg-[#c5a880] px-4 py-2 text-sm font-semibold text-[#141312] transition-colors hover:bg-[#dfc8a8] disabled:cursor-wait disabled:opacity-60">{profileSaving ? "Saving…" : "Save profile"}</button>
+          </div>
+        </form>
+      </Modal>
       <Modal
         isOpen={Boolean(cancelTarget)}
         onClose={() => { if (!canceling) setCancelTarget(null); }}

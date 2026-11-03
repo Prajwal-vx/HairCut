@@ -58,6 +58,8 @@ export interface AuthSessionUser {
   fullName: string;
   email: string;
   phone: string;
+  birthday?: string;
+  gender?: "male" | "female" | "non-binary" | "prefer-not-to-say";
   role: UserRole;
   loyaltyPoints: number;
   styleStreak: number;
