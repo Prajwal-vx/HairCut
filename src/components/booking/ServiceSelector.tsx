@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import { Check, Clock, Scissors } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";

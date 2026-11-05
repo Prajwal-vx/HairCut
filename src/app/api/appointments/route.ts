@@ -3,14 +3,8 @@ import { readDatabase, writeDatabase } from "@/lib/db";
 import { validateOrigin } from "@/lib/auth";
 import { canManageSalon, getRequestIdentity } from "@/lib/request-auth";
 import { Appointment, LoyaltyTransaction } from "@/lib/types";
+import { VALID_APPOINTMENT_STATUSES, VALID_TIME_SLOTS } from "@/constants/salon";
 
-const VALID_TIME_SLOTS = new Set([
-  "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
-  "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
-  "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM",
-  "6:00 PM", "6:30 PM", "7:00 PM",
-]);
-const VALID_STATUSES = new Set(["pending", "upcoming", "completed", "cancelled", "declined", "no-show"]);
 const holdsTimeSlot = (status: string) => status === "pending" || status === "upcoming";
 
 export async function GET(req: Request) {
@@ -154,7 +148,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
   const { appointmentId, status } = body as Record<string, unknown>;
-  if (typeof appointmentId !== "string" || !appointmentId || typeof status !== "string" || !VALID_STATUSES.has(status)) {
+  if (typeof appointmentId !== "string" || !appointmentId || typeof status !== "string" || !VALID_APPOINTMENT_STATUSES.has(status)) {
     return NextResponse.json({ error: "appointmentId and status required" }, { status: 400 });
   }
 

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Scissors, User, Calendar, Check } from "lucide-react";
 
 interface StepIndicatorProps {

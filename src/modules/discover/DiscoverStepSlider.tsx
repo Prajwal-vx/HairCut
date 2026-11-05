@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { motion } from "framer-motion";
 import { Sliders, ArrowLeft, Sparkles } from "lucide-react";
 import { getSliderLabel } from "./discoverEngine";

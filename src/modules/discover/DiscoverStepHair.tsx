@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { OptionCard } from "./OptionCard";
 import type { DiscoverAnswers } from "./discoverTypes";
