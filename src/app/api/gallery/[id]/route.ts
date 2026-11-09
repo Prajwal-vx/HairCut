@@ -1,12 +1,12 @@
+import { withDatabaseRoute, readDatabase, writeDatabase } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { readDatabase, writeDatabase } from "@/lib/db";
 import { validateOrigin } from "@/lib/auth";
 import { canManageSalon, getRequestIdentity } from "@/lib/request-auth";
 
 const VALID_CATEGORIES = new Set(["Haircut", "Color", "Salon Event", "Before-After"]);
 const VALID_ASPECT_RATIOS = new Set(["square", "portrait", "landscape", "wide"]);
 
-export async function DELETE(req: Request, context: { params: Promise<{ id: string }> }) {
+async function deleteHandler(req: Request, context: { params: Promise<{ id: string }> }) {
   // Origin validation for CSRF protection
   if (!validateOrigin(req)) {
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
@@ -24,7 +24,7 @@ export async function DELETE(req: Request, context: { params: Promise<{ id: stri
   return NextResponse.json({ success: true });
 }
 
-export async function PATCH(req: Request, context: { params: Promise<{ id: string }> }) {
+async function patchHandler(req: Request, context: { params: Promise<{ id: string }> }) {
   // Origin validation for CSRF protection
   if (!validateOrigin(req)) {
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
@@ -86,3 +86,7 @@ export async function PATCH(req: Request, context: { params: Promise<{ id: strin
   writeDatabase(db);
   return NextResponse.json({ success: true, photo: db.galleryPhotos[idx] });
 }
+
+export const DELETE = withDatabaseRoute(deleteHandler);
+
+export const PATCH = withDatabaseRoute(patchHandler);

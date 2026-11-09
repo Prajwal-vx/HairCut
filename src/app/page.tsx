@@ -14,8 +14,8 @@ import { formatCurrency } from "@/lib/utils";
 import { salonService } from "@/services/salonService";
 import type { GalleryPhoto, Service } from "@/lib/types";
 
-const heroImage = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1600&auto=format&fit=crop&q=75";
-const heroPortrait = "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=1600&auto=format&fit=crop&q=80";
+const heroImage = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1200&auto=format&fit=crop&q=70";
+const heroPortrait = "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=1200&auto=format&fit=crop&q=70";
 
 export default function HomePage() {
   const [homePhotos, setHomePhotos] = useState<GalleryPhoto[]>([]);
@@ -59,7 +59,7 @@ export default function HomePage() {
         {/* HERO */}
         <section className="home-hero relative min-h-[min(800px,100svh)] flex items-center overflow-hidden px-4 sm:px-6 lg:px-8">
           <div className="absolute inset-0">
-              <Image src={heroPortrait} alt="Long, dimensional hair styled at Uptown Hair" fill priority sizes="100vw" quality={75} className="object-cover object-[65%_center]" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+              <Image src={heroPortrait} alt="Long, dimensional hair styled at Uptown Hair" fill priority sizes="100vw" quality={60} className="object-cover object-[65%_center]" onError={(event) => { event.currentTarget.style.display = "none"; }} />
               <div className="absolute inset-0 bg-gradient-to-r from-[#0d0c0b]/95 via-[#0d0c0b]/80 to-[#0d0c0b]/15" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b] via-transparent to-[#0d0c0b]/40" />
           </div>
@@ -137,7 +137,7 @@ export default function HomePage() {
               <FadeIn key={s.id} delay={i * 0.1}>
                 <div className="group glass-card glass-card-hover rounded-2xl overflow-hidden">
                   <div className="relative h-52 overflow-hidden">
-                    <Image src={s.image} alt={s.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" quality={72} className="object-cover group-hover:scale-105 transition-transform duration-500" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                    <Image src={s.image} alt={s.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" quality={60} className="object-cover group-hover:scale-105 transition-transform duration-500" onError={(event) => { event.currentTarget.style.display = "none"; }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b] via-transparent to-transparent" />
                     <span className="absolute top-3 right-3 bg-[#c5a880]/20 text-[#c5a880] text-xs px-2 py-1 rounded-full border border-[#c5a880]/30">{s.category}</span>
                   </div>
@@ -291,7 +291,7 @@ export default function HomePage() {
                       alt={photo.caption}
                       fill
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      quality={70}
+                      quality={60}
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(event) => { event.currentTarget.style.display = "none"; }}
                     />
@@ -326,7 +326,7 @@ export default function HomePage() {
         <section className="py-16 sm:py-20 px-4">
           <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 lg:gap-14 items-center">
             <FadeIn className="relative min-h-[300px] sm:min-h-[420px] rounded-sm overflow-hidden bg-gradient-to-br from-[#4a3527] via-[#221a15] to-[#0d0c0b]">
-              <Image src={heroImage} alt="Salon interior and barber stations at Uptown Hair" fill sizes="(max-width: 768px) 100vw, 50vw" quality={75} className="object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+              <Image src={heroImage} alt="Salon interior and barber stations at Uptown Hair" fill sizes="(max-width: 768px) 100vw, 50vw" quality={60} className="object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <span className="absolute bottom-4 left-4 text-[10px] font-medium uppercase tracking-[.18em] text-white/85">Uptown Hair · Birtamode</span>
             </FadeIn>

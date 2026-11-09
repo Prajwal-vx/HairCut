@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import readline from "node:readline/promises";
 import { stdin, stdout } from "node:process";
 import bcrypt from "bcryptjs";
+import { Pool } from "pg";
 
 const dataFile = path.join(process.cwd(), "data", "salon_data.json");
 
@@ -55,19 +56,36 @@ function askHidden(question) {
 }
 
 async function main() {
-  if (!fs.existsSync(dataFile)) {
+  const useSupabase = Boolean(process.env.DATABASE_URL);
+  if (!useSupabase && !fs.existsSync(dataFile)) {
     throw new Error("Local salon data was not found. Start the app once, then run this command from the project folder.");
   }
 
+  const pool = useSupabase ? new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_SSL === "disable" ? false : { rejectUnauthorized: false },
+    max: 1,
+  }) : null;
+  const client = pool ? await pool.connect() : null;
+  let transactionOpen = false;
   const rl = readline.createInterface({ input: stdin, output: stdout });
   try {
+    let db;
+    if (client) {
+      await client.query("BEGIN");
+      transactionOpen = true;
+      const result = await client.query("SELECT data FROM public.salon_state WHERE id = 1 FOR UPDATE");
+      if (!result.rowCount) throw new Error("The hosted database is not initialized. Open the deployed site once, then retry.");
+      db = result.rows[0].data;
+    } else {
+      db = JSON.parse(fs.readFileSync(dataFile, "utf8"));
+    }
     const enteredEmail = process.argv[2] || await rl.question("Owner email: ");
     const email = enteredEmail.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw new Error("Enter a valid email address.");
     }
 
-    const db = JSON.parse(fs.readFileSync(dataFile, "utf8"));
     if (!Array.isArray(db.users)) db.users = [];
     let user = db.users.find((item) => item.email?.toLowerCase() === email);
 
@@ -120,12 +138,23 @@ async function main() {
     }
 
     if (!Array.isArray(db.loyaltyTransactions)) db.loyaltyTransactions = [];
-    const tempFile = `${dataFile}.tmp.${process.pid}`;
-    fs.writeFileSync(tempFile, JSON.stringify(db, null, 2), "utf8");
-    fs.renameSync(tempFile, dataFile);
+    if (client) {
+      await client.query("UPDATE public.salon_state SET data = $1::jsonb, updated_at = now() WHERE id = 1", [JSON.stringify(db)]);
+      await client.query("COMMIT");
+      transactionOpen = false;
+    } else {
+      const tempFile = `${dataFile}.tmp.${process.pid}`;
+      fs.writeFileSync(tempFile, JSON.stringify(db, null, 2), "utf8");
+      fs.renameSync(tempFile, dataFile);
+    }
     stdout.write(`Owner access is ready for ${email}. Sign in at /auth, then open /admin.\n`);
   } finally {
     rl.close();
+    if (client) {
+      if (transactionOpen) await client.query("ROLLBACK").catch(() => undefined);
+      client.release();
+      await pool.end();
+    }
   }
 }
 

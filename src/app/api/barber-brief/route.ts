@@ -1,5 +1,5 @@
+import { withDatabaseRoute, readDatabase, writeDatabase } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { readDatabase, writeDatabase } from "@/lib/db";
 import { validateOrigin } from "@/lib/auth";
 import { getRequestIdentity } from "@/lib/request-auth";
 import { BarberBrief, HairPassport } from "@/lib/types";
@@ -45,7 +45,7 @@ function generateBarberBriefFromPassport(passport: HairPassport): Omit<BarberBri
   return brief;
 }
 
-export async function GET(req: Request) {
+async function getHandler(req: Request) {
   const identity = await getRequestIdentity(req);
   if (!identity) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -79,7 +79,7 @@ export async function GET(req: Request) {
   return NextResponse.json({ barberBrief: brief });
 }
 
-export async function POST(req: Request) {
+async function postHandler(req: Request) {
   if (!validateOrigin(req)) {
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
   }
@@ -123,7 +123,7 @@ export async function POST(req: Request) {
   return NextResponse.json({ success: true, barberBrief: brief }, { status: 201 });
 }
 
-export async function PATCH(req: Request) {
+async function patchHandler(req: Request) {
   if (!validateOrigin(req)) {
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
   }
@@ -168,3 +168,9 @@ export async function PATCH(req: Request) {
 
   return NextResponse.json({ success: true, barberBrief: updated });
 }
+
+export const GET = withDatabaseRoute(getHandler);
+
+export const POST = withDatabaseRoute(postHandler);
+
+export const PATCH = withDatabaseRoute(patchHandler);

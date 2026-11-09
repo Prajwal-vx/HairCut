@@ -1,8 +1,8 @@
+import { withDatabaseRoute, readDatabase } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { readDatabase } from "@/lib/db";
 import { canManageSalon, getRequestIdentity } from "@/lib/request-auth";
 
-export async function GET(req: Request) {
+async function getHandler(req: Request) {
   const identity = await getRequestIdentity(req);
   const db = readDatabase();
   if (!canManageSalon(identity)) {
@@ -119,3 +119,5 @@ export async function GET(req: Request) {
     }),
   });
 }
+
+export const GET = withDatabaseRoute(getHandler);

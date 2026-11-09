@@ -1,13 +1,13 @@
+import { withDatabaseRoute, readDatabase, writeDatabase } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getSafeUser, validateOrigin } from "@/lib/auth";
-import { readDatabase, writeDatabase } from "@/lib/db";
 import { getRequestIdentity } from "@/lib/request-auth";
 import { matchesPhone } from "@/lib/security";
 
 const channels = ["app", "sms", "whatsapp", "email"] as const;
 const genders = ["male", "female", "non-binary", "prefer-not-to-say"] as const;
 
-export async function PATCH(request: Request) {
+async function patchHandler(request: Request) {
   if (!validateOrigin(request)) {
     return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
   }
@@ -74,3 +74,5 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "We couldn’t save your profile. Please try again." }, { status: 400 });
   }
 }
+
+export const PATCH = withDatabaseRoute(patchHandler);

@@ -1,9 +1,9 @@
-﻿import { NextResponse } from "next/server";
-import { readDatabase, writeDatabase } from "@/lib/db";
+import { withDatabaseRoute, readDatabase, writeDatabase } from "@/lib/db";
+import { NextResponse } from "next/server";
 import { validateOrigin } from "@/lib/auth";
 import { getRequestIdentity } from "@/lib/request-auth";
 
-export async function GET(req: Request) {
+async function getHandler(req: Request) {
   const identity = await getRequestIdentity(req);
   if (!identity) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   return NextResponse.json({ notifications: myNotifs });
 }
 
-export async function PATCH(req: Request) {
+async function patchHandler(req: Request) {
   // Origin validation for CSRF protection
   if (!validateOrigin(req)) {
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
@@ -30,3 +30,7 @@ export async function PATCH(req: Request) {
   }
   return NextResponse.json({ success: true });
 }
+
+export const GET = withDatabaseRoute(getHandler);
+
+export const PATCH = withDatabaseRoute(patchHandler);

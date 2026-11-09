@@ -1,5 +1,5 @@
+import { withDatabaseRoute, readDatabase, writeDatabase } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { readDatabase, writeDatabase } from "@/lib/db";
 import { validateOrigin } from "@/lib/auth";
 import { canManageSalon, getRequestIdentity } from "@/lib/request-auth";
 import { Appointment, LoyaltyTransaction } from "@/lib/types";
@@ -7,7 +7,7 @@ import { VALID_APPOINTMENT_STATUSES, VALID_TIME_SLOTS } from "@/constants/salon"
 
 const holdsTimeSlot = (status: string) => status === "pending" || status === "upcoming";
 
-export async function GET(req: Request) {
+async function getHandler(req: Request) {
   const identity = await getRequestIdentity(req);
   if (!identity) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -28,7 +28,7 @@ export async function GET(req: Request) {
   return NextResponse.json({ appointments: enriched });
 }
 
-export async function POST(req: Request) {
+async function postHandler(req: Request) {
   // Origin validation for CSRF protection
   if (!validateOrigin(req)) {
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
@@ -129,7 +129,7 @@ export async function POST(req: Request) {
   });
 }
 
-export async function PATCH(req: Request) {
+async function patchHandler(req: Request) {
   // Origin validation for CSRF protection
   if (!validateOrigin(req)) {
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
@@ -258,3 +258,9 @@ export async function PATCH(req: Request) {
 
   return NextResponse.json({ success: true, appointment: db.appointments[aptIndex] });
 }
+
+export const GET = withDatabaseRoute(getHandler);
+
+export const POST = withDatabaseRoute(postHandler);
+
+export const PATCH = withDatabaseRoute(patchHandler);

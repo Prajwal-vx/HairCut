@@ -21,6 +21,7 @@
 /build
 /dist
 /.turbo
+/.open-next/
 
 # misc
 .DS_Store
@@ -39,6 +40,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!/.env.production.example
 
 # vercel
 .vercel
@@ -52,5 +54,8 @@ next-env.d.ts
 
 # raw image assets (served from /public instead)
 /image/
+
+# production deployment secrets
+/.env.production
 
 .vercel

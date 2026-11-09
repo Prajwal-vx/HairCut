@@ -132,6 +132,23 @@ input, textarea, select, button { max-width: 100%; }
   }
 }
 
+html[data-low-power="true"] *,
+html[data-low-power="true"] *::before,
+html[data-low-power="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-low-power="true"] .glass-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html[data-low-power="true"] .home-hero::after {
+  filter: none;
+}
+
 /* Loading skeleton animation */
 @keyframes shimmer {
   0% {
