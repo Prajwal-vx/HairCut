@@ -30,7 +30,7 @@ export function BookingConfirmation({ appointment }: BookingConfirmationProps) {
         <p className="text-sm text-stone-400 mb-6">
           {appointment.status === "pending"
             ? "Your preferred time has been sent to the salon. It is not confirmed yet; we’ll update your account as soon as the team responds."
-            : "Your reservation is confirmed. We look forward to seeing you at Uptown Hair Unisex Salon."}
+            : "Your reservation is confirmed. We look forward to seeing you at Uptown Hair."}
         </p>
 
         <Card className="text-left space-y-3 mb-6 bg-[#141312]">
@@ -88,3 +88,4 @@ export function BookingConfirmation({ appointment }: BookingConfirmationProps) {
     </div>
   );
 }
+

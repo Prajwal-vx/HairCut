@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useState, useEffect, useSyncExternalStore, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowRight, Menu, X, Scissors, Bell, User, ChevronDown, LogOut, Moon, Search, Sun } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNotifications } from "@/context/NotificationContext";
@@ -30,23 +31,37 @@ const homeNavLinks = [
 
 export default function Navbar({ showAnnouncement = false }: { showAnnouncement?: boolean }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const lightMode = useSyncExternalStore((onChange) => { window.addEventListener("uptown-theme-change", onChange); return () => window.removeEventListener("uptown-theme-change", onChange); }, () => localStorage.getItem("uptown-theme") === "light", () => false);
   const { user, logout } = useAuth();
   const { notifications, unreadCount } = useNotifications();
   const visibleNavLinks = showAnnouncement ? homeNavLinks : navLinks;
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20);
+    let frame = 0;
+    const handler = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 20);
+        frame = 0;
+      });
+    };
     window.addEventListener("scroll", handler);
-    return () => window.removeEventListener("scroll", handler);
+    return () => {
+      window.removeEventListener("scroll", handler);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
   useEffect(() => {
     const closeMenus = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        if (isOpen) menuButtonRef.current?.focus();
         setIsOpen(false);
         setUserMenuOpen(false);
         setNotifOpen(false);
@@ -54,7 +69,7 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
     };
     window.addEventListener("keydown", closeMenus);
     return () => window.removeEventListener("keydown", closeMenus);
-  }, []);
+  }, [isOpen]);
   useEffect(() => {
     document.documentElement.dataset.theme = lightMode ? "light" : "dark";
   }, [lightMode]);
@@ -76,18 +91,18 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
       {showAnnouncement && (
         <div className="fixed inset-x-0 top-0 z-[60] h-9 border-b border-[#c5a880]/20 bg-[#17130f]/95 px-4 backdrop-blur-md">
           <div className="mx-auto flex h-full max-w-7xl items-center justify-center gap-3 sm:justify-between">
-            <p className="hidden text-[10px] font-medium tracking-[.12em] text-[#d6c6b3] sm:block">A LITTLE TIME FOR YOURSELF, RIGHT HERE IN BIRTAMODE</p>
-            <span className="text-[10px] font-medium tracking-[.1em] text-[#d6c6b3] sm:hidden">YOUR STYLE, YOUR WAY · BIRTAMODE</span>
-            <Link href="/book" className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[.1em] text-[#e4c99e] transition-colors hover:text-white">
+            <p className="hidden text-xs font-medium tracking-wide text-[#b7aa9c] sm:block">A little time for yourself, right here in Birtamode</p>
+            <span className="text-xs font-medium tracking-wide text-[#b7aa9c] sm:hidden">Your style, your way · Birtamode</span>
+            <Link href="/book" className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[.1em] text-[#dfc8a8] transition-colors hover:text-white">
               Book your visit <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
         </div>
       )}
       <motion.header
-        initial={{ y: -80 }}
+        initial={reduceMotion ? false : { y: -80 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: reduceMotion ? 0 : 0.45, ease: [0.16, 1, 0.3, 1] }}
         className={`fixed ${showAnnouncement ? "top-9" : "top-0"} left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? "bg-[#0d0c0b]/95 backdrop-blur-xl border-b border-[#2e2b26]"
@@ -102,20 +117,21 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
                 <Image src={salonBrand.logoSrc} alt={`${salonBrand.name} logo`} width={40} height={40} className="w-full h-full object-cover" />
               </div>
               <div>
-                <span className="text-white font-display text-base sm:text-lg font-semibold tracking-wide leading-tight block whitespace-nowrap">
+                <span className="block max-w-[10.5rem] truncate whitespace-nowrap font-display text-base font-semibold leading-tight tracking-wide text-white sm:max-w-none sm:text-lg">
                   {showAnnouncement ? "Uptown Hair" : salonBrand.name}
                 </span>
-                <p className="text-[#c5a880] text-xs tracking-wide">{salonBrand.location}</p>
+                <p className="hidden text-xs tracking-wide text-[#c5a880] sm:block">{salonBrand.location}</p>
               </div>
             </Link>
 
             {/* Desktop Nav */}
-            <nav className={`hidden lg:flex ${showAnnouncement ? "items-center gap-4 xl:gap-6" : "items-center gap-8"}`}>
+            <nav aria-label="Main navigation" className={`hidden xl:flex ${showAnnouncement ? "items-center gap-4 2xl:gap-6" : "items-center gap-5 2xl:gap-8"}`}>
               {visibleNavLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-[#e0d8cd] hover:text-[#c5a880] ${showAnnouncement ? "text-xs" : "text-sm"} font-medium transition-colors duration-200 tracking-wide`}
+                  aria-current={pathname === link.href ? "page" : undefined}
+                  className={`relative text-[#f3efe6] hover:text-[#c5a880] ${showAnnouncement ? "text-xs" : "text-sm"} font-medium transition-colors duration-200 tracking-wide after:absolute after:-bottom-2 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-[#c5a880] after:transition-transform aria-[current=page]:text-[#dfc8a8] aria-[current=page]:after:scale-x-100`}
                 >
                   {link.label}
                 </Link>
@@ -123,7 +139,7 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
             </nav>
 
             {/* Right side actions */}
-            <div className={`hidden lg:flex ${showAnnouncement ? "items-center gap-2 xl:gap-3" : "items-center gap-4"}`}>
+            <div className={`hidden xl:flex ${showAnnouncement ? "items-center gap-2 2xl:gap-3" : "items-center gap-3 2xl:gap-4"}`}>
               <button type="button" onClick={openSearch} aria-label="Search site" className="flex items-center gap-2 rounded-lg border border-[#2e2b26] p-2 xl:px-3 xl:py-2 text-[#a09080] transition-colors hover:border-[#c5a880] hover:text-[#c5a880]"><Search className="h-4 w-4" /><span className={showAnnouncement ? "hidden xl:inline text-xs" : "text-xs"}>Search</span><kbd className="hidden 2xl:inline rounded border border-[#2e2b26] px-1 text-[10px]">?K</kbd></button>
               <button type="button" onClick={toggleTheme} aria-label={lightMode ? "Switch to dark mode" : "Switch to light mode"} className="flex h-9 w-9 items-center justify-center rounded-full border border-[#2e2b26] text-[#a09080] transition-colors hover:border-[#c5a880] hover:text-[#c5a880]">{lightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}</button>
               {user ? (
@@ -155,7 +171,7 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
                           </div>
                           <div className="max-h-72 overflow-y-auto">
                             {notifications.length === 0 ? (
-                              <p className="text-[#78716c] text-sm p-4">No notifications yet.</p>
+                              <p className="text-[#a99c8e] text-sm p-4">No notifications yet.</p>
                             ) : (
                               notifications.slice(0, 6).map((n) => (
                                 <div key={n.id} className={`px-4 py-3 border-b border-[#2e2b26]/50 hover:bg-[#2e2b26]/30 transition-colors ${n.status !== "read" ? "bg-[#c5a880]/5" : ""}`}>
@@ -170,7 +186,7 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
                                     </span>
                                   )}
                                   {n.type === "booking_request_cancelled" && (
-                                    <span className="mb-1 inline-block rounded-full bg-[#2e2b26] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#d0c5b9]">Request cancelled</span>
+                                    <span className="mb-1 inline-block rounded-full bg-[#2e2b26] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#b7aa9c]">Request cancelled</span>
                                   )}
                                   {n.type === "booking_confirmed" && (
                                     <span className="mb-1 inline-block rounded-full bg-[#c5a880]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#c5a880]">Appointment confirmed</span>
@@ -178,8 +194,8 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
                                   {n.type === "booking_declined" && (
                                     <span className="mb-1 inline-block rounded-full bg-red-950/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-300">Appointment update</span>
                                   )}
-                                  <p className="text-[#e0d8cd] text-xs leading-relaxed">{n.message}</p>
-                                  <p className="text-[#78716c] text-[10px] mt-1">{new Date(n.sentAt).toLocaleDateString()}</p>
+                                  <p className="text-[#f3efe6] text-xs leading-relaxed">{n.message}</p>
+                                  <p className="text-[#a99c8e] text-[10px] mt-1">{new Date(n.sentAt).toLocaleDateString()}</p>
                                 </div>
                               ))
                             )}
@@ -208,11 +224,11 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
                           <User className="w-4 h-4 text-[#141312]" />
                         )}
                       </div>
-                      <span className="text-[#e0d8cd] text-sm font-medium">{user.fullName.split(" ")[0]}</span>
+                      <span className="text-[#f3efe6] text-sm font-medium">{user.fullName.split(" ")[0]}</span>
                       {user.styleStreak > 0 && (
                         <span className="text-xs">🔥{user.styleStreak}</span>
                       )}
-                      <ChevronDown className="w-3 h-3 text-[#78716c]" />
+                      <ChevronDown className="w-3 h-3 text-[#a99c8e]" />
                     </button>
                     <AnimatePresence>
                       {userMenuOpen && (
@@ -226,10 +242,10 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
                             <p className="text-white font-semibold text-sm">{user.fullName}</p>
                             <p className="text-[#c5a880] text-xs">⭐ {user.loyaltyPoints} points</p>
                           </div>
-                          <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-[#e0d8cd] hover:bg-[#2e2b26]/40 text-sm transition-colors" onClick={() => setUserMenuOpen(false)}>
+                          <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-[#f3efe6] hover:bg-[#2e2b26]/40 text-sm transition-colors" onClick={() => setUserMenuOpen(false)}>
                             <User className="w-4 h-4" /> My Dashboard
                           </Link>
-                          <Link href="/book" className="flex items-center gap-3 px-4 py-3 text-[#e0d8cd] hover:bg-[#2e2b26]/40 text-sm transition-colors" onClick={() => setUserMenuOpen(false)}>
+                          <Link href="/book" className="flex items-center gap-3 px-4 py-3 text-[#f3efe6] hover:bg-[#2e2b26]/40 text-sm transition-colors" onClick={() => setUserMenuOpen(false)}>
                             <Scissors className="w-4 h-4" /> Book Appointment
                           </Link>
                           {(user.role === "ADMIN" || user.role === "OWNER") && (
@@ -251,7 +267,7 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
               ) : (
                 <Link
                   href="/auth"
-                  className="text-sm text-[#e0d8cd] hover:text-[#c5a880] font-medium transition-colors"
+                  className="text-sm text-[#f3efe6] hover:text-[#c5a880] font-medium transition-colors"
                 >
                   Sign In
                 </Link>
@@ -267,10 +283,11 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
 
             {/* Mobile menu toggle */}
             <button
+              ref={menuButtonRef}
               aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isOpen}
               aria-controls="mobile-navigation"
-              className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-[#2e2b26]"
+              className="xl:hidden flex h-11 w-11 items-center justify-center rounded-lg border border-[#3d3932]"
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
@@ -286,35 +303,37 @@ export default function Navbar({ showAnnouncement = false }: { showAnnouncement?
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="lg:hidden overflow-hidden bg-[#141312] border-t border-[#2e2b26]"
+              className="xl:hidden overflow-hidden bg-[#141312] border-t border-[#2e2b26]"
               id="mobile-navigation"
             >
-              <div className="px-4 py-6 space-y-4">
+              <div className="max-h-[calc(100dvh-5rem)] overflow-y-auto px-4 py-4 pb-safe">
                 <div className="flex gap-2">
-                  <button type="button" onClick={openSearch} className="flex flex-1 items-center gap-2 rounded-lg border border-[#2e2b26] px-3 py-2 text-sm text-[#e0d8cd]"><Search className="h-4 w-4" /> Search site</button>
-                  <button type="button" onClick={toggleTheme} aria-label="Toggle color theme" className="rounded-lg border border-[#2e2b26] px-3 text-[#c5a880]">{lightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}</button>
+                  <button type="button" onClick={openSearch} className="flex min-h-11 flex-1 items-center gap-2 rounded-lg border border-[#2e2b26] px-3 py-2 text-sm text-[#f3efe6]"><Search className="h-4 w-4" /> Search site</button>
+                  <button type="button" onClick={toggleTheme} aria-label="Toggle color theme" className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#2e2b26] text-[#c5a880]">{lightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}</button>
                 </div>
-                {visibleNavLinks.map((link) => (
-                  <Link key={link.href} href={link.href} className="block text-[#e0d8cd] hover:text-[#c5a880] font-medium py-1 transition-colors" onClick={() => setIsOpen(false)}>
-                    {link.label}
-                  </Link>
-                ))}
-                <div className="pt-4 border-t border-[#2e2b26] space-y-3">
+                <nav aria-label="Main navigation" className="mt-4 space-y-1">
+                  {visibleNavLinks.map((link) => (
+                    <Link key={link.href} href={link.href} aria-current={pathname === link.href ? "page" : undefined} className="flex min-h-11 items-center rounded-lg px-3 font-medium text-[#f3efe6] transition-colors hover:bg-white/5 hover:text-[#c5a880] aria-[current=page]:bg-[#c5a880]/10 aria-[current=page]:text-[#dfc8a8]" onClick={() => setIsOpen(false)}>
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+                <div className="mt-3 space-y-1 border-t border-[#2e2b26] pt-3">
                   {user ? (
                     <>
                       {(user.role === "ADMIN" || user.role === "OWNER") && (
-                        <Link href="/admin" className="block text-[#c5a880] font-medium py-1" onClick={() => setIsOpen(false)}>
+                        <Link href="/admin" className="flex min-h-11 items-center px-3 font-medium text-[#c5a880]" onClick={() => setIsOpen(false)}>
                           {user.role === "OWNER" ? "👑 Owner Studio" : "⚙️ Admin Panel"}
                         </Link>
                       )}
-                      <Link href="/dashboard" className="block text-[#c5a880] font-medium py-1" onClick={() => setIsOpen(false)}>My Dashboard 🔥 {user.styleStreak}</Link>
-                      <button onClick={async () => { setIsOpen(false); await logout(); router.push("/auth"); }} className="text-[#c86d51] text-sm">Sign Out</button>
+                      <Link href="/dashboard" className="flex min-h-11 items-center px-3 font-medium text-[#c5a880]" onClick={() => setIsOpen(false)}>My Dashboard 🔥 {user.styleStreak}</Link>
+                      <button type="button" onClick={async () => { setIsOpen(false); await logout(); router.push("/auth"); }} className="min-h-11 px-3 text-sm text-[#c86d51]">Sign Out</button>
                     </>
                   ) : (
-                    <Link href="/auth" className="block text-[#e0d8cd] font-medium py-1" onClick={() => setIsOpen(false)}>Sign In</Link>
+                    <Link href="/auth" className="flex min-h-11 items-center px-3 font-medium text-[#f3efe6]" onClick={() => setIsOpen(false)}>Sign In</Link>
                   )}
-                  <Link href="/book" className="block bg-[#c5a880] text-[#141312] px-5 py-3 rounded-lg text-center font-semibold" onClick={() => setIsOpen(false)}>
-                    Book Now 💈
+                  <Link href="/book" className="mt-2 flex min-h-12 items-center justify-center rounded-lg bg-[#c5a880] px-5 py-3 text-center font-semibold text-[#141312]" onClick={() => setIsOpen(false)}>
+                    Book Now
                   </Link>
                 </div>
               </div>

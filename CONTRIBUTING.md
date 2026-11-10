@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve Uptown Hair Unisex Salon.
+Thanks for helping improve Uptown Hair.
 
 ## Before you start
 

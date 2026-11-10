@@ -1,4 +1,4 @@
-# Uptown Hair Unisex Salon
+# Uptown Hair
 
 Appointment and salon management website for Uptown Hair in Birtamode, Nepal. Built with Next.js App Router, React, TypeScript, and Tailwind CSS.
 

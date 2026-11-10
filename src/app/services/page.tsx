@@ -19,25 +19,29 @@ export default function ServicesPage() {
   const [activeCategory, setActiveCategory] = useState<ServiceCategory | "All">("All");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    salonService
-      .getServices()
-      .then((d) => {
-        if (!cancelled) {
-          setServices(d.services || []);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
+    const loadServices = async () => {
+      setLoading(true);
+      setLoadError(false);
+      try {
+        const d = await salonService.getServices();
+        if (!cancelled) setServices(d.services || []);
+      } catch {
+        if (!cancelled) setLoadError(true);
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    };
+    void loadServices();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryCount]);
 
   const filtered = services.filter((s) => {
     const matchCat = activeCategory === "All" || s.category === activeCategory;
@@ -59,7 +63,7 @@ export default function ServicesPage() {
               <h1 className="text-5xl sm:text-6xl font-bold text-white mt-4 mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 Services & Pricing
               </h1>
-              <p className="text-[#78716c] text-lg max-w-xl mx-auto">
+              <p className="text-[#b7aa9c] text-lg max-w-xl mx-auto">
                 Six carefully curated service categories, all priced transparently. No surprises - just great hair.
               </p>
             </FadeIn>
@@ -72,12 +76,14 @@ export default function ServicesPage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#78716c]" />
+                <label className="sr-only" htmlFor="service-search">Search services by name or category</label>
                 <input
+                  id="service-search"
                   type="text"
                   placeholder="Search services..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-[#1a1816] border border-[#2e2b26] rounded-xl py-3 pl-10 pr-4 text-[#e0d8cd] placeholder-[#4a4540] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
+                  className="w-full bg-[#1a1816] border border-[#3d3932] rounded-xl py-3 pl-10 pr-4 text-[#f3efe6] placeholder:text-[#b7aa9c] focus:outline-none focus:border-[#c5a880] text-sm transition-colors"
                 />
               </div>
             </div>
@@ -90,8 +96,9 @@ export default function ServicesPage() {
                   className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
                     activeCategory === cat
                       ? "bg-[#c5a880] border-[#c5a880] text-[#141312]"
-                      : "border-[#2e2b26] text-[#78716c] hover:border-[#c5a880] hover:text-[#c5a880]"
+                      : "border-[#3d3932] text-[#b7aa9c] hover:border-[#c5a880] hover:text-[#dfc8a8]"
                   }`}
+                  aria-pressed={activeCategory === cat}
                 >
                   {cat}
                 </button>
@@ -102,15 +109,21 @@ export default function ServicesPage() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="glass-card rounded-2xl h-64 animate-pulse" />
+                <div key={i} aria-hidden="true" className="glass-card rounded-2xl h-64 animate-pulse" />
               ))}
+            </div>
+          ) : loadError ? (
+            <div role="alert" className="rounded-2xl border border-[#6b493b] bg-[#211713] px-6 py-10 text-center">
+              <h2 className="text-lg font-semibold text-white">Services are temporarily unavailable</h2>
+              <p className="mt-2 text-sm text-[#d0c5b9]">Please try again. Your booking details have not been changed.</p>
+              <button type="button" onClick={() => setRetryCount((count) => count + 1)} className="mt-5 min-h-11 rounded-lg bg-[#c5a880] px-5 py-2.5 text-sm font-semibold text-[#141312] hover:bg-[#dfc8a8]">Try again</button>
             </div>
           ) : (
             <AnimatePresence mode="popLayout">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filtered.map((service, i) => (
                   <motion.div key={service.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: i * 0.06 }}>
-                    <div className="group glass-card glass-card-hover rounded-2xl overflow-hidden h-full flex flex-col">
+                    <div className="group glass-card glass-card-hover rounded-xl overflow-hidden h-full flex flex-col">
                       <div className="relative h-48 overflow-hidden">
                         <Image fill sizes="(max-width: 768px) 100vw, 33vw" src={service.image} alt={service.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c0b] via-transparent to-transparent" />
@@ -121,11 +134,11 @@ export default function ServicesPage() {
                       </div>
                       <div className="p-6 flex-1 flex flex-col">
                         <h3 className="text-white font-semibold text-base mb-2">{service.name}</h3>
-                        <p className="text-[#78716c] text-sm leading-relaxed flex-1">{service.description}</p>
+                        <p className="text-[#b7aa9c] text-sm leading-relaxed flex-1">{service.description}</p>
                         <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#2e2b26]">
                           <div>
                             <p className="text-[#c5a880] font-bold text-lg">{formatCurrency(service.price)}</p>
-                            <div className="flex items-center gap-1 text-[#78716c] text-xs mt-0.5">
+                            <div className="flex items-center gap-1 text-[#b7aa9c] text-xs mt-0.5">
                               <Clock className="w-3 h-3" /> {service.durationMinutes} min
                             </div>
                           </div>
@@ -143,10 +156,12 @@ export default function ServicesPage() {
 
           {!loading && filtered.length === 0 && (
             <div className="text-center py-24">
-              <p className="text-[#78716c] text-lg">No services found for &quot;{search}&quot;</p>
+              <p className="text-[#f3efe6] text-lg">No services found{search ? ` for “${search}”` : ` in ${activeCategory}`}.</p>
+              <p className="mt-2 text-sm text-[#b7aa9c]">Try another search or show all categories.</p>
               <button onClick={() => { setSearch(""); setActiveCategory("All"); }} className="mt-4 text-[#c5a880] text-sm hover:underline">Clear filters</button>
             </div>
           )}
+          {!loading && !loadError && filtered.length > 0 && <p className="sr-only" role="status" aria-live="polite">Showing {filtered.length} {filtered.length === 1 ? "service" : "services"}.</p>}
         </section>
       </main>
       <Footer />

@@ -3,17 +3,17 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "Read how Uptown Hair Unisex Salon uses and protects information for accounts, bookings, salon services, and inquiries.",
+  description: "Read how Uptown Hair uses and protects information for accounts, bookings, salon services, and inquiries.",
   alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
   return <main className="mx-auto min-h-screen max-w-3xl px-4 py-12 pb-24 text-[#e0d8cd]">
     <h1 className="mb-3 font-display text-5xl text-white">Privacy Policy</h1>
-    <p className="mb-10 text-sm text-[#a8a29e]">Uptown Hair Unisex Salon · Birtamode, Nepal · Updated 24 October 2026</p>
+    <p className="mb-10 text-sm text-[#a8a29e]">Uptown Hair · Birtamode, Nepal · Updated 24 October 2026</p>
 
     <h2 className="mb-2 mt-8 font-display text-2xl text-white">Who is responsible</h2>
-    <p className="text-[#a8a29e]">This website is operated for Uptown Hair Unisex Salon at Ratan Complex, Bhadrapur Bus Stand, Birtamode, Jhapa, Nepal. Contact us by phone at <a className="text-[#c5a880] underline" href="tel:+9779801234567">+977 980-1234567</a> or through the <Link className="text-[#c5a880] underline" href="/contact">contact page</Link> to ask about your information.</p>
+    <p className="text-[#a8a29e]">This website is operated for Uptown Hair at Ratan Complex, Bhadrapur Bus Stand, Birtamode, Jhapa, Nepal. Contact us by phone at <a className="text-[#c5a880] underline" href="tel:+9779801234567">+977 980-1234567</a> or through the <Link className="text-[#c5a880] underline" href="/contact">contact page</Link> to ask about your information.</p>
 
     <h2 className="mb-2 mt-8 font-display text-2xl text-white">Information we handle</h2>
     <p className="text-[#a8a29e]">Depending on the features you use, we handle your name, phone number, email address, password hash, profile image, account and referral identifiers, appointment and queue details, service preferences, feedback, loyalty activity, notifications, and the hair and style preferences you choose to save. You can upload or remove your profile image from your customer profile. Uploaded images are resized to JPEG before they are saved. Contact messages include the name, phone, optional email, and message you submit.</p>
@@ -34,3 +34,4 @@ export default function PrivacyPage() {
     <p className="mt-10 text-sm text-[#a8a29e]">See also our <Link className="text-[#c5a880] underline" href="/data-declaration">Data Declaration</Link> and <Link className="text-[#c5a880] underline" href="/terms">Terms of Use</Link>.</p>
   </main>;
 }
+

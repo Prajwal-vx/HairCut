@@ -3,14 +3,14 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms of Use",
-  description: "Terms for using the Uptown Hair Unisex Salon website, client account, and appointment features.",
+  description: "Terms for using the Uptown Hair website, client account, and appointment features.",
   alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {
   return <main className="mx-auto min-h-screen max-w-3xl px-4 py-12 pb-24 text-[#e0d8cd]">
     <h1 className="mb-3 font-display text-5xl text-white">Terms of Use</h1>
-    <p className="mb-10 text-sm text-[#a8a29e]">Uptown Hair Unisex Salon · Birtamode, Nepal · Updated 24 October 2026</p>
+    <p className="mb-10 text-sm text-[#a8a29e]">Uptown Hair · Birtamode, Nepal · Updated 24 October 2026</p>
 
     <h2 className="mb-2 mt-8 font-display text-2xl text-white">Using this website</h2>
     <p className="text-[#a8a29e]">These terms apply when you use this website, create a client account, request an appointment, or use its salon features. By using the site, you agree to use it lawfully and provide information that is accurate to the best of your knowledge. If you do not agree, do not use the account or booking features.</p>
@@ -35,3 +35,4 @@ export default function TermsPage() {
     <p className="mt-10 text-sm text-[#a8a29e]">Read our <Link className="text-[#c5a880] underline" href="/privacy">Privacy Policy</Link> and <Link className="text-[#c5a880] underline" href="/data-declaration">Data Declaration</Link>.</p>
   </main>;
 }
+
