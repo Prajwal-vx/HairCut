@@ -107,7 +107,7 @@ export function useBookingFlow() {
       });
 
       setConfirmed(res.appointment);
-      toast.success("Appointment booked successfully!", "Reserved");
+      toast.success("Your request was sent to the salon. We’ll let you know when it’s confirmed.", "Request received");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Booking failed. Please try another slot.";
       toast.error(msg, "Booking Error");

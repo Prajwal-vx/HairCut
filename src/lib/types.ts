@@ -50,7 +50,13 @@ export interface Service {
   popular?: boolean;
 }
 
-export type AppointmentStatus = "upcoming" | "completed" | "cancelled" | "no-show";
+export type AppointmentStatus = "pending" | "upcoming" | "completed" | "cancelled" | "declined" | "no-show";
+
+export interface AppointmentStatusEvent {
+  status: AppointmentStatus;
+  changedAt: string;
+  changedBy: "customer" | "staff" | "system";
+}
 
 export interface Appointment {
   id: string;
@@ -68,6 +74,7 @@ export interface Appointment {
   stylistName?: string;
   userName?: string;
   feedbackGiven?: boolean;
+  statusHistory?: AppointmentStatusEvent[];
 }
 
 export type GalleryCategory = "Haircut" | "Color" | "Salon Event" | "Before-After";
@@ -85,7 +92,7 @@ export interface GalleryPhoto {
   createdAt: string;
 }
 
-export type NotificationType = "35_day_reminder" | "booking_confirmed" | "promo" | "birthday";
+export type NotificationType = "35_day_reminder" | "booking_request_received" | "booking_request" | "booking_request_cancelled" | "booking_confirmed" | "booking_declined" | "promo" | "birthday";
 export type NotificationChannel = "sms" | "whatsapp" | "email" | "app";
 
 export interface NotificationLog {

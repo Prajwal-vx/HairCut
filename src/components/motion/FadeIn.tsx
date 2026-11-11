@@ -1,7 +1,7 @@
 ﻿"use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
+import { useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
 
 interface FadeInProps {
@@ -15,6 +15,7 @@ interface FadeInProps {
 export function FadeIn({ children, delay = 0, direction = "up", className = "", once = true }: FadeInProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once, margin: "-80px" });
+  const reduceMotion = useReducedMotion();
 
   const variants = {
     hidden: {
@@ -29,9 +30,9 @@ export function FadeIn({ children, delay = 0, direction = "up", className = "", 
     <motion.div
       ref={ref}
       variants={variants}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+      initial={reduceMotion ? false : "hidden"}
+      animate={reduceMotion || isInView ? "visible" : "hidden"}
+      transition={{ duration: 0.48, delay: reduceMotion ? 0 : Math.min(delay, 0.16), ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
@@ -55,22 +56,23 @@ export function AnimatedCounter({ from = 0, to, suffix = "", prefix = "", durati
 
   React.useEffect(() => {
     if (!isInView) return;
-    let start = from;
-    const steps = 60;
-    const increment = (to - from) / steps;
-    const interval = (duration * 1000) / steps;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion || duration <= 0) {
+      const frame = window.requestAnimationFrame(() => setCount(to));
+      return () => window.cancelAnimationFrame(frame);
+    }
 
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= to) {
-        setCount(to);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(start));
-      }
-    }, interval);
-
-    return () => clearInterval(timer);
+    let frame = 0;
+    let startTime: number | undefined;
+    const tick = (now: number) => {
+      startTime ??= now;
+      const progress = Math.min((now - startTime) / (duration * 1000), 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(from + (to - from) * eased));
+      if (progress < 1) frame = window.requestAnimationFrame(tick);
+    };
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
   }, [isInView, from, to, duration]);
 
   return (

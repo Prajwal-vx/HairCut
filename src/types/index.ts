@@ -26,6 +26,16 @@ export interface ClientStat {
   styleStreak: number;
   lastVisitDate: string | null;
   visitCount: number;
+  createdAt: string;
+  activity: ClientActivity[];
+}
+
+export interface ClientActivity {
+  id: string;
+  type: "account" | "appointment" | "loyalty" | "profile";
+  title: string;
+  details: string;
+  occurredAt: string;
 }
 
 export interface DueClient {
@@ -43,6 +53,7 @@ export interface AdminStatsData {
   totalClients: number;
   totalAppointments: number;
   upcomingCount: number;
+  pendingCount: number;
   completedCount: number;
   totalRevenue: number;
   repeatRate: number;
@@ -58,6 +69,8 @@ export interface AuthSessionUser {
   fullName: string;
   email: string;
   phone: string;
+  birthday?: string;
+  gender?: "male" | "female" | "non-binary" | "prefer-not-to-say";
   role: UserRole;
   loyaltyPoints: number;
   styleStreak: number;

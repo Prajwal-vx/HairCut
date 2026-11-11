@@ -1,11 +1,11 @@
+import { withDatabaseRoute, readDatabase, writeDatabase } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { readDatabase, writeDatabase } from "@/lib/db";
 import { getSafeUser, hashPassword, signToken, checkRateLimit, getRateLimitResetTime, validateOrigin } from "@/lib/auth";
 import { isCompromisedPassword, matchesPhone } from "@/lib/security";
 import { User, LoyaltyTransaction } from "@/lib/types";
 import { env } from "@/config/env";
 
-export async function POST(req: Request) {
+async function postHandler(req: Request) {
   try {
     const contentLength = Number(req.headers.get("content-length") || 0);
     if (contentLength > 8192) return NextResponse.json({ error: "Request is too large." }, { status: 413 });
@@ -203,3 +203,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Registration failed." }, { status: 400 });
   }
 }
+
+export const POST = withDatabaseRoute(postHandler);

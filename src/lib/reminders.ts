@@ -37,7 +37,7 @@ export function runAutomaticRemindersJob(): ReminderCheckResult {
     if (diffDays >= 35 && diffDays <= 40) {
       // 1. Check if client has already booked an upcoming appointment (Rule 6: cancel/skip reminder)
       const hasUpcomingBooking = db.appointments.some(
-        (apt) => apt.userId === user.id && apt.status === "upcoming"
+        (apt) => apt.userId === user.id && (apt.status === "upcoming" || apt.status === "pending")
       );
 
       if (hasUpcomingBooking) {
@@ -74,7 +74,7 @@ export function runAutomaticRemindersJob(): ReminderCheckResult {
 
       // 3. Send reminder! (In-app notification + SMS/WhatsApp/Email delivery log)
       const channel = user.preferredChannel || "whatsapp";
-      const message = `Hey ${user.fullName.split(" ")[0]}, it's been ${diffDays} days (approx. 5 weeks) since your last cut at Uptown Hair Unisex Salon — time for a fresh look? Maintain your Style Streak (${user.styleStreak || 1} 🔥) and book your slot in 2 taps 💈`;
+      const message = `Hey ${user.fullName.split(" ")[0]}, it's been ${diffDays} days (approx. 5 weeks) since your last cut at Uptown Hair — time for a fresh look? Maintain your Style Streak (${user.styleStreak || 1} 🔥) and book your slot in 2 taps 💈`;
 
       const newNotif: NotificationLog = {
         id: "notif-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7),
@@ -119,3 +119,4 @@ export function runAutomaticRemindersJob(): ReminderCheckResult {
     details,
   };
 }
+

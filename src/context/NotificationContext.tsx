@@ -43,7 +43,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }
 
     let isCancelled = false;
-    notificationService
+    const loadNotifications = () => notificationService
       .getNotifications()
       .then((res) => {
         if (!isCancelled) {
@@ -53,9 +53,14 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       .catch(() => {
         // Graceful fallback for offline / errors
       });
+    void loadNotifications();
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") void loadNotifications();
+    }, 15000);
 
     return () => {
       isCancelled = true;
+      window.clearInterval(timer);
     };
   }, [user]);
 

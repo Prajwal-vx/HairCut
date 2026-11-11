@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Image, { ImageProps } from "next/image";
 
 export interface SafeImageProps extends Omit<ImageProps, "onError"> {

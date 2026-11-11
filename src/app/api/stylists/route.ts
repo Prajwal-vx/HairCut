@@ -1,7 +1,8 @@
-﻿import { NextResponse } from "next/server";
-import { readDatabase } from "@/lib/db";
+import { withDatabaseRoute, readDatabase } from "@/lib/db";
+import { NextResponse } from "next/server";
 
-export async function GET() {
+async function getHandler() {
   const db = readDatabase();
   return NextResponse.json({ stylists: db.stylists });
 }
+export const GET = withDatabaseRoute(getHandler);

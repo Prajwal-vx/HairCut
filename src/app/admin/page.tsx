@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -17,101 +17,31 @@ import {
   Sparkles,
   Eye,
   Crown,
+  Clock3,
+  Mail,
+  Phone,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/layout/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { formatCurrency } from "@/lib/utils";
-import type { GalleryCategory } from "@/lib/types";
-
-type AdminTab = "overview" | "appointments" | "clients" | "gallery" | "reminders";
-
-interface ClientStat {
-  id: string;
-  fullName: string;
-  phone: string;
-  email: string;
-  loyaltyPoints: number;
-  styleStreak: number;
-  lastVisitDate: string | null;
-  visitCount: number;
-}
-
-interface DueClient {
-  id: string;
-  fullName: string;
-  phone: string;
-  email: string;
-  lastVisitDate: string;
-  daysSince: number;
-  styleStreak: number;
-  preferredChannel: string;
-}
-
-interface StatsData {
-  totalClients: number;
-  totalAppointments: number;
-  upcomingCount: number;
-  completedCount: number;
-  totalRevenue: number;
-  repeatRate: number;
-  topService: string;
-  galleryCount: number;
-  usersNeedingReminderCount: number;
-  usersNeedingReminder: DueClient[];
-  clients: ClientStat[];
-}
-
-interface AppointmentItem {
-  id: string;
-  userId: string;
-  stylistId: string;
-  serviceId: string;
-  visitDate: string;
-  timeSlot: string;
-  status: "upcoming" | "completed" | "cancelled" | "no-show";
-  notes?: string;
-  amountPaid: number;
-  serviceName?: string;
-  stylistName?: string;
-  userName?: string;
-}
-
-interface GalleryPhotoItem {
-  id: string;
-  imageUrl: string;
-  caption: string;
-  category: GalleryCategory;
-  uploadedByAdminId: string;
-  likesCount: number;
-  showOnHome?: boolean;
-  displayOrder?: number;
-  aspectRatio?: "square" | "portrait" | "landscape" | "wide";
-  createdAt: string;
-}
-
-interface ReminderDetail {
-  userId: string;
-  userName: string;
-  daysSinceLastVisit: number;
-  action: "sent" | "skipped_already_booked" | "skipped_already_sent" | "not_due";
-  reason?: string;
-}
-
-interface ReminderResultData {
-  totalUsersChecked: number;
-  remindersSent: number;
-  remindersSkippedAlreadyBooked: number;
-  remindersSkippedAlreadySent: number;
-  details: ReminderDetail[];
-}
+import type { AppointmentStatus, GalleryCategory } from "@/lib/types";
+import { Modal } from "@/components/ui/Modal";
+import type {
+  AdminStatsData,
+  AdminTab,
+  AppointmentItem,
+  ClientStat,
+  GalleryPhotoItem,
+  ReminderResultData,
+} from "@/types";
 
 function AdminContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<AdminTab>("overview");
-  const [stats, setStats] = useState<StatsData | null>(null);
+  const [stats, setStats] = useState<AdminStatsData | null>(null);
   const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
   const [gallery, setGallery] = useState<GalleryPhotoItem[]>([]);
   const [galleryFilter, setGalleryFilter] = useState<"all" | "home">("all");
@@ -128,6 +58,9 @@ function AdminContent() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [updatingApt, setUpdatingApt] = useState<string | null>(null);
   const [togglingHomeId, setTogglingHomeId] = useState<string | null>(null);
+  const [selectedClient, setSelectedClient] = useState<ClientStat | null>(null);
+  const [newRequestNotice, setNewRequestNotice] = useState<AppointmentItem | null>(null);
+  const knownPendingIds = useRef<Set<string> | null>(null);
 
   const isAuthorized = user && (user.role === "ADMIN" || user.role === "OWNER");
   const isOwner = user?.role === "OWNER";
@@ -152,7 +85,14 @@ function AdminContent() {
       const res = await fetch("/api/appointments", { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
-        setAppointments(data.appointments || []);
+        const nextAppointments: AppointmentItem[] = (data.appointments || []).sort((a: AppointmentItem, b: AppointmentItem) => Number(b.status === "pending") - Number(a.status === "pending") || a.visitDate.localeCompare(b.visitDate));
+        const pending = nextAppointments.filter((appointment) => appointment.status === "pending");
+        if (knownPendingIds.current) {
+          const newRequest = pending.find((appointment) => !knownPendingIds.current?.has(appointment.id));
+          if (newRequest) setNewRequestNotice(newRequest);
+        }
+        knownPendingIds.current = new Set(pending.map((appointment) => appointment.id));
+        setAppointments(nextAppointments);
       }
     } catch {
       // ignore
@@ -192,17 +132,42 @@ function AdminContent() {
     }
   }, [isAuthorized, isAdminWhitelisted, loadStats, loadAppointments, loadGallery]);
 
-  const updateAppointment = async (id: string, status: "upcoming" | "completed" | "cancelled" | "no-show") => {
+  useEffect(() => {
+    if (!(isAuthorized || isAdminWhitelisted)) return;
+    const refresh = () => {
+      if (document.visibilityState === "visible") {
+        void loadAppointments();
+        void loadStats();
+      }
+    };
+    const timer = window.setInterval(refresh, 10000);
+    return () => window.clearInterval(timer);
+  }, [isAuthorized, isAdminWhitelisted, loadAppointments, loadStats]);
+
+  const updateAppointment = async (id: string, status: AppointmentStatus) => {
     setUpdatingApt(id);
-    await fetch("/api/appointments", {
+    const response = await fetch("/api/appointments", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ appointmentId: id, status }),
     });
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+      window.alert(data?.error || "Could not update this appointment. Please try again.");
+      setUpdatingApt(null);
+      return;
+    }
+    setNewRequestNotice((notice) => notice?.id === id ? null : notice);
     await loadAppointments();
     await loadStats();
     setUpdatingApt(null);
+  };
+
+  const openClientActivity = (userId: string) => {
+    const client = stats?.clients.find((item) => item.id === userId);
+    if (client) setSelectedClient(client);
+    else setTab("clients");
   };
 
   const toggleShowOnHome = async (photo: GalleryPhotoItem) => {
@@ -285,7 +250,7 @@ function AdminContent() {
 
   const tabItems: { id: AdminTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: "overview", label: "Overview", icon: BarChart3 },
-    { id: "appointments", label: "Appointments", icon: Calendar },
+    { id: "appointments", label: stats?.pendingCount ? `Requests (${stats.pendingCount})` : "Appointments", icon: Calendar },
     { id: "clients", label: "Clients", icon: Users },
     { id: "gallery", label: isOwner ? "Owner Lookbook Studio" : "Gallery Studio", icon: ImageIcon },
     { id: "reminders", label: "Reminder Engine", icon: Bell },
@@ -343,13 +308,24 @@ function AdminContent() {
             ))}
           </div>
 
+          {newRequestNotice && (
+            <div role="status" className="mb-6 flex flex-col gap-3 rounded-xl border border-[#c5a880]/50 bg-[#c5a880]/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 rounded-full bg-[#c5a880]/15 p-2 text-[#dfc8a8]"><Bell className="h-4 w-4" /></span>
+                <div><p className="text-sm font-semibold text-white">New appointment request</p><p className="mt-1 text-xs text-[#d0c5b9]">{newRequestNotice.userName} · {newRequestNotice.serviceName} · {newRequestNotice.visitDate} at {newRequestNotice.timeSlot}</p></div>
+              </div>
+              <button type="button" onClick={() => { setTab("appointments"); setNewRequestNotice(null); }} className="min-h-10 rounded-md bg-[#c5a880] px-4 py-2 text-sm font-semibold text-[#141312] hover:bg-[#dfc8a8]">Review request</button>
+            </div>
+          )}
+
           {/* TAB 1: OVERVIEW */}
           {tab === "overview" && stats && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
                 {[
                   { label: "Total Registered Clients", value: stats.totalClients, color: "#c5a880" },
-                  { label: "Upcoming Appointments", value: stats.upcomingCount, color: "#c5a880" },
+                  { label: "Awaiting Confirmation", value: stats.pendingCount, color: "#d5a95f" },
+                  { label: "Confirmed Appointments", value: stats.upcomingCount, color: "#c5a880" },
                   { label: "Completed Transformations", value: stats.completedCount, color: "#c5a880" },
                   { label: "Repeat Client Rate", value: `${stats.repeatRate}%`, color: "#c86d51" },
                 ].map((s) => (
@@ -392,14 +368,14 @@ function AdminContent() {
           {tab === "appointments" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">All Client Appointments</h2>
-                <span className="text-xs text-[#78716c]">Only Staff & Owner can complete appointments</span>
+                <div><h2 className="text-xl font-bold text-white">Appointment requests</h2><p className="mt-1 text-xs text-[#a99c8e]">New requests refresh automatically. Confirm a time before it is booked.</p></div>
+                <span className="text-xs text-[#d5a95f]">{appointments.filter((appointment) => appointment.status === "pending").length} awaiting review</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[#2e2b26]">
-                      {["Client", "Service", "Stylist", "Date & Slot", "Amount", "Status", "Actions"].map((h) => (
+                      {["Client", "Service & request note", "Stylist", "Date & Slot", "Amount", "Status", "Actions"].map((h) => (
                         <th key={h} className="text-left py-3 px-4 text-[#78716c] text-xs font-semibold uppercase tracking-wider">
                           {h}
                         </th>
@@ -409,8 +385,8 @@ function AdminContent() {
                   <tbody>
                     {appointments.map((apt) => (
                       <tr key={apt.id} className="border-b border-[#2e2b26]/50 hover:bg-[#1a1816]/50 transition-colors">
-                        <td className="py-4 px-4 text-[#e0d8cd] text-sm font-medium">{apt.userName || "Client"}</td>
-                        <td className="py-4 px-4 text-[#e0d8cd] text-sm">{apt.serviceName}</td>
+                        <td className="py-4 px-4 text-sm font-medium"><button type="button" onClick={() => openClientActivity(apt.userId)} className="text-left text-[#e0d8cd] underline-offset-2 hover:text-[#dfc8a8] hover:underline">{apt.userName || "Client"}</button></td>
+                        <td className="py-4 px-4 text-sm"><p className="text-[#e0d8cd]">{apt.serviceName}</p>{apt.notes && <p className="mt-1 max-w-xs whitespace-normal text-xs leading-relaxed text-[#a99c8e]">Note: {apt.notes}</p>}</td>
                         <td className="py-4 px-4 text-[#e0d8cd] text-sm">{apt.stylistName}</td>
                         <td className="py-4 px-4 text-[#78716c] text-xs">
                           {apt.visitDate}<br />{apt.timeSlot}
@@ -419,19 +395,27 @@ function AdminContent() {
                         <td className="py-4 px-4">
                           <span
                             className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                              apt.status === "upcoming"
+                              apt.status === "pending"
+                                ? "bg-amber-950/50 text-amber-300 border border-amber-800/50"
+                                : apt.status === "upcoming"
                                 ? "bg-[#c5a880]/20 text-[#c5a880]"
                                 : apt.status === "completed"
                                 ? "bg-green-950/60 text-green-400 border border-green-800/40"
-                                : apt.status === "cancelled"
+                                : apt.status === "cancelled" || apt.status === "declined"
                                 ? "bg-red-950/60 text-red-400 border border-red-800/40"
                                 : "bg-[#78716c]/20 text-[#78716c]"
                             }`}
                           >
-                            {apt.status}
+                            {apt.status === "upcoming" ? "Confirmed" : apt.status === "pending" ? "Awaiting confirmation" : apt.status === "declined" ? "Declined" : apt.status === "no-show" ? "No-show" : apt.status}
                           </span>
                         </td>
                         <td className="py-4 px-4">
+                          {apt.status === "pending" && (
+                            <div className="flex flex-wrap gap-2">
+                              <button type="button" onClick={() => updateAppointment(apt.id, "upcoming")} disabled={updatingApt === apt.id} className="flex min-h-9 items-center gap-1 rounded-lg bg-[#c5a880] px-3 py-2 text-xs font-semibold text-[#141312] hover:bg-[#dfc8a8] disabled:opacity-50"><Check className="h-3.5 w-3.5" /> Confirm</button>
+                              <button type="button" onClick={() => updateAppointment(apt.id, "declined")} disabled={updatingApt === apt.id} className="flex min-h-9 items-center gap-1 rounded-lg border border-red-800 px-3 py-2 text-xs text-red-300 hover:bg-red-950/40 disabled:opacity-50"><X className="h-3.5 w-3.5" /> Decline</button>
+                            </div>
+                          )}
                           {apt.status === "upcoming" && (
                             <div className="flex gap-2">
                               <button
@@ -467,7 +451,7 @@ function AdminContent() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[#2e2b26]">
-                      {["Client Details", "Phone", "Completed Visits", "Style Streak", "Loyalty Points", "Last Visit"].map((h) => (
+                      {["Client Details", "Phone", "Completed Visits", "Style Streak", "Loyalty Points", "Last Visit", "Activity"].map((h) => (
                         <th key={h} className="text-left py-3 px-4 text-[#78716c] text-xs font-semibold uppercase tracking-wider">
                           {h}
                         </th>
@@ -490,10 +474,12 @@ function AdminContent() {
                         <td className="py-4 px-4 text-[#78716c] text-xs">
                           {c.lastVisitDate ? new Date(c.lastVisitDate).toLocaleDateString() : "Never"}
                         </td>
+                        <td className="py-4 px-4"><button type="button" onClick={() => setSelectedClient(c)} className="min-h-9 rounded-md border border-[#806b4e] px-3 py-2 text-xs font-medium text-[#dfc8a8] hover:border-[#c5a880] hover:bg-[#c5a880]/10">View activity ({c.activity.length})</button></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+                {stats.clients.length === 0 && <p className="py-10 text-center text-sm text-[#a99c8e]">No client accounts yet.</p>}
               </div>
             </motion.div>
           )}
@@ -778,6 +764,30 @@ function AdminContent() {
           )}
         </div>
       </section>
+      <Modal isOpen={Boolean(selectedClient)} onClose={() => setSelectedClient(null)} title={selectedClient?.fullName || "Client activity"} description="Account, appointment, and loyalty activity" maxWidth="lg">
+        {selectedClient && (
+          <div>
+            <div className="mb-5 flex flex-wrap gap-x-5 gap-y-2 border-b border-[#2e2b26] pb-4 text-xs text-[#c3b8aa]">
+              <a className="inline-flex items-center gap-2 hover:text-[#dfc8a8]" href={`mailto:${selectedClient.email}`}><Mail className="h-3.5 w-3.5" />{selectedClient.email}</a>
+              <a className="inline-flex items-center gap-2 hover:text-[#dfc8a8]" href={`tel:${selectedClient.phone}`}><Phone className="h-3.5 w-3.5" />{selectedClient.phone}</a>
+            </div>
+            <div className="mb-5 grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg bg-[#1a1816] p-3"><p className="text-lg font-semibold text-white">{selectedClient.visitCount}</p><p className="text-[10px] text-[#a99c8e]">Visits</p></div>
+              <div className="rounded-lg bg-[#1a1816] p-3"><p className="text-lg font-semibold text-[#dfc8a8]">{selectedClient.loyaltyPoints}</p><p className="text-[10px] text-[#a99c8e]">Points</p></div>
+              <div className="rounded-lg bg-[#1a1816] p-3"><p className="text-lg font-semibold text-white">{selectedClient.styleStreak}</p><p className="text-[10px] text-[#a99c8e]">Streak</p></div>
+            </div>
+            <div className="max-h-[45vh] space-y-3 overflow-y-auto pr-1">
+              {selectedClient.activity.map((activity) => (
+                <div key={activity.id} className="flex gap-3 rounded-lg border border-[#2e2b26] bg-[#1a1816]/70 p-3">
+                  <span className="mt-0.5 text-[#c5a880]">{activity.type === "appointment" ? <Calendar className="h-4 w-4" /> : activity.type === "loyalty" || activity.type === "profile" ? <Sparkles className="h-4 w-4" /> : <Users className="h-4 w-4" />}</span>
+                  <div className="min-w-0 flex-1"><p className="text-sm font-medium text-[#f3efe6]">{activity.title}</p><p className="mt-1 text-xs leading-relaxed text-[#b7aa9c]">{activity.details}</p><p className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-[#8f8579]"><Clock3 className="h-3 w-3" />{new Date(activity.occurredAt).toLocaleString()}</p></div>
+                </div>
+              ))}
+              {selectedClient.activity.length === 0 && <p className="py-8 text-center text-sm text-[#a99c8e]">No recorded activity yet.</p>}
+            </div>
+          </div>
+        )}
+      </Modal>
     </main>
   );
 }

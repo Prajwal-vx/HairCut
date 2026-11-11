@@ -1,7 +1,7 @@
 import { publicConfig } from "@/config/public";
 
 export const salonBrand = {
-  name: "Uptown Hair Unisex Salon",
+  name: "Uptown Hair",
   location: "Birtamode, Nepal",
   instagramUrl: "https://www.instagram.com/uptownhsalon/",
   instagramHandle: "@uptownhsalon",

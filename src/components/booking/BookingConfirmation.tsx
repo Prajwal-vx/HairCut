@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, Calendar, Clock, User, Scissors } from "lucide-react";
@@ -22,14 +21,16 @@ export function BookingConfirmation({ appointment }: BookingConfirmationProps) {
         className="max-w-md w-full text-center"
       >
         <div className="w-20 h-20 rounded-full bg-[#c5a880]/20 border-2 border-[#c5a880] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-[#c5a880]/15">
-          <Check className="w-10 h-10 text-[#c5a880]" />
+          {appointment.status === "pending" ? <Clock className="w-10 h-10 text-[#c5a880]" /> : <Check className="w-10 h-10 text-[#c5a880]" />}
         </div>
 
         <h2 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-          Booking Confirmed!
+          {appointment.status === "pending" ? "Request received" : "Booking confirmed"}
         </h2>
         <p className="text-sm text-stone-400 mb-6">
-          Your reservation is locked in. We look forward to giving you a crisp transformation at Uptown Hair Unisex Salon.
+          {appointment.status === "pending"
+            ? "Your preferred time has been sent to the salon. It is not confirmed yet; we’ll update your account as soon as the team responds."
+            : "Your reservation is confirmed. We look forward to seeing you at Uptown Hair."}
         </p>
 
         <Card className="text-left space-y-3 mb-6 bg-[#141312]">
@@ -87,3 +88,4 @@ export function BookingConfirmation({ appointment }: BookingConfirmationProps) {
     </div>
   );
 }
+

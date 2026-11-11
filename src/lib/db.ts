@@ -1,5 +1,7 @@
 import fs from "fs";
 import path from "path";
+import { AsyncLocalStorage } from "node:async_hooks";
+import { Pool, type PoolClient } from "pg";
 import {
   SalonDatabase,
   User,
@@ -11,6 +13,54 @@ import { removeLegacyDemoAccounts } from "./security";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "salon_data.json");
+
+type DatabaseContext = { client: PoolClient; data: SalonDatabase; dirty: boolean };
+const databaseContext = new AsyncLocalStorage<DatabaseContext>();
+const globalPool = globalThis as typeof globalThis & { salonPool?: Pool };
+
+function getPool(): Pool {
+  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required for hosted database access.");
+  globalPool.salonPool ??= new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_SSL === "disable" ? false : { rejectUnauthorized: false },
+    max: 2,
+    idleTimeoutMillis: 10_000,
+    connectionTimeoutMillis: 5_000,
+  });
+  return globalPool.salonPool;
+}
+
+/** Runs a route in a Postgres transaction. The single state row is locked so
+ * mutations from simultaneous serverless invocations cannot overwrite each other. */
+export function withDatabaseRoute<T extends (...args: never[]) => Promise<Response>>(handler: T): T {
+  return (async (...args: Parameters<T>) => {
+    if (!process.env.DATABASE_URL) return handler(...args);
+    const client = await getPool().connect();
+    try {
+      await client.query("BEGIN");
+      const starter = createInitialDatabase();
+      await client.query(
+        "INSERT INTO public.salon_state (id, data) VALUES (1, $1::jsonb) ON CONFLICT (id) DO NOTHING",
+        [JSON.stringify(starter)],
+      );
+      const result = await client.query<{ data: SalonDatabase }>(
+        "SELECT data FROM public.salon_state WHERE id = 1 FOR UPDATE",
+      );
+      const context: DatabaseContext = { client, data: result.rows[0].data, dirty: false };
+      const response = await databaseContext.run(context, () => handler(...args));
+      if (context.dirty) {
+        await client.query("UPDATE public.salon_state SET data = $1::jsonb, updated_at = now() WHERE id = 1", [JSON.stringify(context.data)]);
+      }
+      await client.query("COMMIT");
+      return response;
+    } catch (error) {
+      await client.query("ROLLBACK").catch(() => undefined);
+      throw error;
+    } finally {
+      client.release();
+    }
+  }) as T;
+}
 
 // Helper to compute date N days ago
 function daysAgo(days: number): string {
@@ -532,6 +582,18 @@ const DEFAULT_GALLERY: GalleryPhoto[] = [
 // Accounts must be provisioned through a trusted process; never seed public credentials.
 const DEFAULT_USERS: User[] = [];
 
+function createInitialDatabase(): SalonDatabase {
+  return {
+    users: DEFAULT_USERS,
+    stylists: DEFAULT_STYLISTS,
+    services: DEFAULT_SERVICES,
+    appointments: [],
+    galleryPhotos: DEFAULT_GALLERY,
+    notifications: [],
+    loyaltyTransactions: [],
+  };
+}
+
 function initDatabase(): SalonDatabase {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -577,25 +639,31 @@ function initDatabase(): SalonDatabase {
     }
   }
 
-  const initialData: SalonDatabase = {
-    users: DEFAULT_USERS,
-    stylists: DEFAULT_STYLISTS,
-    services: DEFAULT_SERVICES,
-    appointments: [],
-    galleryPhotos: DEFAULT_GALLERY,
-    notifications: [],
-    loyaltyTransactions: [],
-  };
+  const initialData = createInitialDatabase();
 
   writeDatabase(initialData);
   return initialData;
 }
 
 export function readDatabase(): SalonDatabase {
+  const context = databaseContext.getStore();
+  if (context) return context.data;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Hosted production storage is not configured. Set DATABASE_URL.");
+  }
   return initDatabase();
 }
 
 export function writeDatabase(data: SalonDatabase): void {
+  const context = databaseContext.getStore();
+  if (context) {
+    context.data = data;
+    context.dirty = true;
+    return;
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Hosted production storage is not configured. Set DATABASE_URL.");
+  }
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }

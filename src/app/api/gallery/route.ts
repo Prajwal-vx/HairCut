@@ -1,5 +1,5 @@
+import { withDatabaseRoute, readDatabase, writeDatabase } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { readDatabase, writeDatabase } from "@/lib/db";
 import { validateOrigin } from "@/lib/auth";
 import { canManageSalon, getRequestIdentity } from "@/lib/request-auth";
 import { GalleryPhoto, GalleryCategory } from "@/lib/types";
@@ -21,7 +21,7 @@ function isHttpUrl(value: unknown): value is string {
   }
 }
 
-export async function GET(req: Request) {
+async function getHandler(req: Request) {
   const db = readDatabase();
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category");
@@ -41,7 +41,7 @@ export async function GET(req: Request) {
   return NextResponse.json({ photos });
 }
 
-export async function POST(req: Request) {
+async function postHandler(req: Request) {
   // Origin validation for CSRF protection
   if (!validateOrigin(req)) {
     return NextResponse.json({ error: "Invalid origin." }, { status: 403 });
@@ -85,3 +85,7 @@ export async function POST(req: Request) {
   writeDatabase(db);
   return NextResponse.json({ success: true, photo: newPhoto });
 }
+
+export const GET = withDatabaseRoute(getHandler);
+
+export const POST = withDatabaseRoute(postHandler);

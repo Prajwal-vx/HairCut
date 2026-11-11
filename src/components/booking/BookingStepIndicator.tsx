@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Scissors, User, Calendar, Check } from "lucide-react";
 
 interface StepIndicatorProps {
@@ -17,7 +16,7 @@ const STEPS = [
 
 export function BookingStepIndicator({ currentStep, onStepClick }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-center gap-2 md:gap-4 mb-10 overflow-x-auto pb-2">
+    <div className="flex items-center justify-center gap-2 md:gap-4 overflow-x-auto pb-1">
       {STEPS.map(({ step, label, icon: Icon }) => {
         const isCompleted = currentStep > step;
         const isActive = currentStep === step;
@@ -27,7 +26,9 @@ export function BookingStepIndicator({ currentStep, onStepClick }: StepIndicator
             <button
               type="button"
               onClick={() => isCompleted && onStepClick(step)}
-              disabled={!isCompleted}
+              disabled={step > currentStep}
+              aria-current={isActive ? "step" : undefined}
+              aria-label={`${label}${isActive ? ", current step" : isCompleted ? ", completed, go back to this step" : ", upcoming"}`}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 isActive
                   ? "bg-[#c5a880] text-[#141312] shadow-lg shadow-[#c5a880]/20 font-semibold"

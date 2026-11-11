@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { CheckCircle2 } from "lucide-react";
 
 export function OptionCard<T extends string>({

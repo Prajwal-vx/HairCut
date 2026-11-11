@@ -144,8 +144,9 @@ export default function ContactPage() {
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <h2 className="text-2xl font-bold text-white mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Send Us a Message</h2>
                     <div>
-                      <label className="block text-[#b0a090] text-sm font-medium mb-2">Full Name</label>
+                      <label htmlFor="contact-name" className="block text-[#b0a090] text-sm font-medium mb-2">Full Name</label>
                       <input
+                        id="contact-name"
                         type="text"
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -154,8 +155,9 @@ export default function ContactPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[#b0a090] text-sm font-medium mb-2">Phone / WhatsApp</label>
+                      <label htmlFor="contact-phone" className="block text-[#b0a090] text-sm font-medium mb-2">Phone / WhatsApp</label>
                       <input
+                        id="contact-phone"
                         type="tel"
                         value={form.phone}
                         onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -164,8 +166,9 @@ export default function ContactPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[#b0a090] text-sm font-medium mb-2">Email (optional)</label>
+                      <label htmlFor="contact-email" className="block text-[#b0a090] text-sm font-medium mb-2">Email (optional)</label>
                       <input
+                        id="contact-email"
                         type="email"
                         value={form.email}
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -173,8 +176,9 @@ export default function ContactPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[#b0a090] text-sm font-medium mb-2">Message</label>
+                      <label htmlFor="contact-message" className="block text-[#b0a090] text-sm font-medium mb-2">Message</label>
                       <textarea
+                        id="contact-message"
                         rows={4}
                         placeholder="I would like to book a consultation or ask about..."
                         value={form.message}

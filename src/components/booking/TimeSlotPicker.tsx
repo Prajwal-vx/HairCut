@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Calendar, Clock, MessageSquare } from "lucide-react";
 import { TIME_SLOTS } from "@/constants/salon";
 import { Card } from "@/components/ui/Card";
