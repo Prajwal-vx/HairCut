@@ -26,108 +26,22 @@ import Image from "next/image";
 import Navbar from "@/components/layout/Navbar";
 import { useAuth } from "@/context/AuthContext";
 import { formatCurrency } from "@/lib/utils";
-import type { GalleryCategory } from "@/lib/types";
-import type { AppointmentStatus } from "@/lib/types";
+import type { AppointmentStatus, GalleryCategory } from "@/lib/types";
 import { Modal } from "@/components/ui/Modal";
-
-type AdminTab = "overview" | "appointments" | "clients" | "gallery" | "reminders";
-
-interface ClientStat {
-  id: string;
-  fullName: string;
-  phone: string;
-  email: string;
-  loyaltyPoints: number;
-  styleStreak: number;
-  lastVisitDate: string | null;
-  visitCount: number;
-  createdAt: string;
-  activity: ClientActivity[];
-}
-
-interface ClientActivity {
-  id: string;
-  type: "account" | "appointment" | "loyalty" | "profile";
-  title: string;
-  details: string;
-  occurredAt: string;
-}
-
-interface DueClient {
-  id: string;
-  fullName: string;
-  phone: string;
-  email: string;
-  lastVisitDate: string;
-  daysSince: number;
-  styleStreak: number;
-  preferredChannel: string;
-}
-
-interface StatsData {
-  totalClients: number;
-  totalAppointments: number;
-  upcomingCount: number;
-  pendingCount: number;
-  completedCount: number;
-  totalRevenue: number;
-  repeatRate: number;
-  topService: string;
-  galleryCount: number;
-  usersNeedingReminderCount: number;
-  usersNeedingReminder: DueClient[];
-  clients: ClientStat[];
-}
-
-interface AppointmentItem {
-  id: string;
-  userId: string;
-  stylistId: string;
-  serviceId: string;
-  visitDate: string;
-  timeSlot: string;
-  status: AppointmentStatus;
-  notes?: string;
-  amountPaid: number;
-  serviceName?: string;
-  stylistName?: string;
-  userName?: string;
-}
-
-interface GalleryPhotoItem {
-  id: string;
-  imageUrl: string;
-  caption: string;
-  category: GalleryCategory;
-  uploadedByAdminId: string;
-  likesCount: number;
-  showOnHome?: boolean;
-  displayOrder?: number;
-  aspectRatio?: "square" | "portrait" | "landscape" | "wide";
-  createdAt: string;
-}
-
-interface ReminderDetail {
-  userId: string;
-  userName: string;
-  daysSinceLastVisit: number;
-  action: "sent" | "skipped_already_booked" | "skipped_already_sent" | "not_due";
-  reason?: string;
-}
-
-interface ReminderResultData {
-  totalUsersChecked: number;
-  remindersSent: number;
-  remindersSkippedAlreadyBooked: number;
-  remindersSkippedAlreadySent: number;
-  details: ReminderDetail[];
-}
+import type {
+  AdminStatsData,
+  AdminTab,
+  AppointmentItem,
+  ClientStat,
+  GalleryPhotoItem,
+  ReminderResultData,
+} from "@/types";
 
 function AdminContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<AdminTab>("overview");
-  const [stats, setStats] = useState<StatsData | null>(null);
+  const [stats, setStats] = useState<AdminStatsData | null>(null);
   const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
   const [gallery, setGallery] = useState<GalleryPhotoItem[]>([]);
   const [galleryFilter, setGalleryFilter] = useState<"all" | "home">("all");
