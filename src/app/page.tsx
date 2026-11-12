@@ -66,55 +66,55 @@ export default function HomePage() {
 
           <div className="relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_.9fr] items-center gap-8 pt-28 pb-24 lg:pt-32 lg:pb-24">
             <div className="max-w-3xl text-center lg:text-left">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}>
+            <div>
               <span className="inline-flex items-center gap-2 text-[#dfc8a8] text-xs sm:text-sm font-semibold tracking-[0.12em] mb-7">
                 <span className="w-7 h-px bg-[#c5a880]" /> Expert stylists · Exceptional you
               </span>
-            </motion.div>
+            </div>
 
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 1 }} className="text-[3.5rem] sm:text-7xl lg:text-[5.2rem] font-semibold leading-[.86] tracking-[-.035em] mb-7" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <h1 className="text-[clamp(2.5rem,8vw,5.2rem)] sm:text-7xl lg:text-[5.2rem] font-semibold leading-[.95] sm:leading-[.86] tracking-[-.035em] mb-7" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
               <span className="text-white block">Your Hair.</span>
               <span className="text-white block">Your Style.</span>
               <span className="italic text-gold-gradient block">Your Confidence.</span>
-            </motion.h1>
+            </h1>
 
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.8 }} className="text-[#b7aa9c] text-base sm:text-lg max-w-xl mx-auto lg:mx-0 mb-9 leading-[1.8]">
+            <p className="text-[#b7aa9c] text-base sm:text-lg max-w-xl mx-auto lg:mx-0 mb-9 leading-[1.8]">
               Personalised cuts, colour, and care to bring your own style into focus. Thoughtful service for everyone, right here in Birtamode.
-            </motion.p>
+            </p>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
-              <Link href="/book" className="flex w-full sm:w-auto items-center justify-center gap-3 bg-[#c5a880] hover:bg-[#dfc8a8] text-[#141312] px-6 sm:px-8 py-3.5 rounded-md font-bold text-xs tracking-wide transition-all duration-300 shadow-xl shadow-[#c5a880]/20 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#dfc8a8]">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 w-full sm:w-auto">
+              <Link href="/book" className="flex w-full sm:w-auto min-h-[48px] items-center justify-center gap-3 bg-[#c5a880] hover:bg-[#dfc8a8] text-[#141312] px-6 sm:px-8 py-3.5 rounded-md font-bold text-xs tracking-wide transition-all duration-300 shadow-xl shadow-[#c5a880]/20 hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#dfc8a8]">
                 Book Appointment <ArrowUpRight className="w-4 h-4" />
               </Link>
-              <Link href="/services" className="flex w-full sm:w-auto items-center justify-center gap-2 border border-[#c5a880]/55 hover:border-[#dfc8a8] text-[#f3efe6] px-6 sm:px-7 py-3.5 rounded-md font-semibold text-xs tracking-wide transition-all duration-200 bg-[#141312]/50 backdrop-blur-sm">
+              <Link href="/services" className="flex w-full sm:w-auto min-h-[48px] items-center justify-center gap-2 border border-[#c5a880]/55 hover:border-[#dfc8a8] text-[#f3efe6] px-6 sm:px-7 py-3.5 rounded-md font-semibold text-xs tracking-wide transition-all duration-200 bg-[#141312]/50 backdrop-blur-sm active:scale-[0.98]">
                 Our Services <ChevronRight className="w-4 h-4 text-[#c5a880]" />
               </Link>
-            </motion.div>
+            </div>
 
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.3, duration: 0.8 }} className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 mt-8 text-xs sm:text-sm text-[#b7aa9c]">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 mt-8 text-xs sm:text-sm text-[#b7aa9c]">
               {["Personalised care", "All styles welcome"].map((p) => (
                 <span key={p} className="inline-flex items-center gap-2"><span className="text-[#c5a880]">✦</span>{p}</span>
               ))}
-            </motion.div>
+            </div>
             </div>
 
-            <motion.aside initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7, duration: 0.8 }} className="hidden lg:flex min-h-[440px] items-end justify-end pb-10">
+            <aside className="hidden lg:flex min-h-[440px] items-end justify-end pb-10">
               <Link href="/about" className="group flex items-center gap-3 text-right text-white hover:text-[#dfc8a8] transition-colors">
                 <span className="text-xs font-semibold tracking-wide">Discover our salon story</span>
                 <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#dfc8a8]/75 bg-[#0d0c0b]/35 transition-all group-hover:bg-[#c5a880] group-hover:text-[#141312]"><Play className="ml-0.5 h-4 w-4" /></span>
               </Link>
-            </motion.aside>
+            </aside>
           </div>
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:block">
-            <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="w-6 h-10 border-2 border-[#c5a880]/40 rounded-full flex items-start justify-center pt-2">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:block">
+            <div className="w-6 h-10 border-2 border-[#c5a880]/40 rounded-full flex items-start justify-center pt-2">
               <div className="w-1.5 h-3 bg-[#c5a880] rounded-full" />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </section>
 
         {/* VISIT DETAILS */}
-        <section aria-label="Plan your visit" className="border-y border-[#2e2b26] bg-[#11100e]">
+        <section aria-label="Plan your visit" className="cv-auto border-y border-[#2e2b26] bg-[#11100e]">
           <div className="mx-auto grid max-w-6xl gap-4 px-5 py-5 sm:grid-cols-3 sm:gap-8 sm:py-6">
             <div className="flex items-center gap-3"><MapPin className="h-5 w-5 shrink-0 text-[#c5a880]" /><div><p className="text-sm font-medium text-[#f3efe6]">Visit us in Birtamode</p><p className="text-xs text-[#b7aa9c]">Ratan Complex, Bhadrapur Bus Stand</p></div></div>
             <div className="flex items-center gap-3"><Clock className="h-5 w-5 shrink-0 text-[#c5a880]" /><div><p className="text-sm font-medium text-[#f3efe6]">Open daily, 9 AM–8 PM</p><p className="text-xs text-[#b7aa9c]">Hours may vary on special occasions</p></div></div>
@@ -123,16 +123,16 @@ export default function HomePage() {
         </section>
 
         {/* SERVICES HIGHLIGHTS */}
-        <section className="py-16 sm:py-20 px-4 max-w-7xl mx-auto">
+        <section className="cv-auto py-16 sm:py-20 px-4 max-w-7xl mx-auto">
           <FadeIn className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 mb-8 sm:mb-10">
             <div>
             <span className="text-[#c5a880] text-xs font-semibold tracking-[0.25em] uppercase">Our Craft</span>
             <h2 className="text-4xl sm:text-5xl font-semibold text-white mt-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Beauty. Care. Expertise.</h2>
             <p className="text-[#a99c8e] text-sm mt-2 max-w-xl">A considered menu of services, tailored to your style.</p>
             </div>
-            <Link href="/services" className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[.15em] text-[#dfc8a8] border border-[#806b4e] px-4 py-3 rounded-md hover:bg-[#c5a880] hover:text-[#141312] transition-colors">View all services <ArrowUpRight className="w-4 h-4" /></Link>
+            <Link href="/services" className="inline-flex min-h-[44px] items-center justify-center gap-2 text-[10px] font-semibold uppercase tracking-[.15em] text-[#dfc8a8] border border-[#806b4e] px-4 py-3 rounded-md hover:bg-[#c5a880] hover:text-[#141312] transition-colors">View all services <ArrowUpRight className="w-4 h-4" /></Link>
           </FadeIn>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {homeServices.map((s, i) => (
               <FadeIn key={s.id} delay={i * 0.1}>
                 <div className="group glass-card glass-card-hover rounded-2xl overflow-hidden">
@@ -145,7 +145,7 @@ export default function HomePage() {
                     <h3 className="text-white font-semibold text-base">{s.name}</h3>
                     <div className="flex items-center justify-between mt-3">
                       <span className="text-[#c5a880] font-bold">{formatCurrency(s.price)}</span>
-                      <Link href={`/book?service=${s.id}`} className="text-[#a99c8e] hover:text-[#c5a880] text-xs font-medium flex items-center gap-1 transition-colors">
+                      <Link href={`/book?service=${s.id}`} className="min-h-[36px] text-[#a99c8e] hover:text-[#c5a880] text-xs font-medium flex items-center gap-1 transition-colors">
                         Book <ChevronRight className="w-3 h-3" />
                       </Link>
                     </div>
@@ -156,14 +156,14 @@ export default function HomePage() {
           </div>
           {homeServices.length === 0 && <p className="rounded-lg border border-[#2e2b26] px-5 py-8 text-center text-sm text-[#b7aa9c]">Explore the full service menu to see current offerings and prices.</p>}
           <FadeIn className="text-center mt-10">
-            <Link href="/services" className="inline-flex items-center gap-2 border border-[#2e2b26] hover:border-[#c5a880] text-[#f3efe6] px-6 py-3 rounded-xl text-sm font-medium transition-all">
+            <Link href="/services" className="inline-flex min-h-[44px] items-center justify-center gap-2 border border-[#2e2b26] hover:border-[#c5a880] text-[#f3efe6] px-6 py-3 rounded-xl text-sm font-medium transition-all">
               Browse the full service menu <ChevronRight className="w-4 h-4" />
             </Link>
           </FadeIn>
         </section>
 
         {/* CLIENT LOYALTY */}
-        <section className="bg-[#0f0e0d] px-4 py-16 sm:py-20">
+        <section className="cv-auto bg-[#0f0e0d] px-4 py-16 sm:py-20">
           <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[1.15fr_.85fr] lg:gap-16">
             <FadeIn direction="right">
               <span className="text-xs font-semibold uppercase tracking-[.22em] text-[#c5a880]">A little extra for coming back</span>
@@ -189,8 +189,8 @@ export default function HomePage() {
         </section>
 
         {/* UNIQUE FEATURE: HAIRSTYLE & FACE SHAPE CONSULTATION CALLOUT */}
-        <section className="py-20 px-4">
-          <div className="max-w-6xl mx-auto glass-card rounded-3xl p-8 lg:p-12 border border-[#c5a880]/30 relative overflow-hidden bg-gradient-to-r from-[#181614] via-[#121110] to-[#1c1612]">
+        <section className="cv-auto py-16 sm:py-20 px-4">
+          <div className="max-w-6xl mx-auto glass-card rounded-3xl p-6 sm:p-8 lg:p-12 border border-[#c5a880]/30 relative overflow-hidden bg-gradient-to-r from-[#181614] via-[#121110] to-[#1c1612]">
             <div className="relative z-10 grid lg:grid-cols-3 gap-8 items-center">
               <div className="lg:col-span-2">
                 <span className="text-[#c5a880] text-xs font-semibold tracking-[0.25em] uppercase inline-flex items-center gap-2">
@@ -202,16 +202,16 @@ export default function HomePage() {
                 <p className="text-[#b7aa9c] text-base mt-4 max-w-xl leading-relaxed">
                   Take our 60-second Face Shape & Hair Texture Consultation Quiz. Our smart diagnostic tool matches your jawline, density, and lifestyle with the exact right haircut and stylist specialist.
                 </p>
-                <div className="flex flex-wrap gap-4 mt-6">
+                <div className="flex flex-wrap gap-3 sm:gap-4 mt-6">
                   <Link
                     href="/consultation"
-                    className="flex items-center gap-2 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-6 py-3.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#c5a880]/20"
+                    className="flex min-h-[44px] items-center justify-center gap-2 bg-[#c5a880] hover:bg-[#d4b898] text-[#141312] px-6 py-3.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-[#c5a880]/20 w-full sm:w-auto"
                   >
                     <Compass className="w-4 h-4" /> Start Style Consultation Now
                   </Link>
                   <Link
                     href="/stylists"
-                    className="flex items-center gap-2 border border-[#2e2b26] text-[#f3efe6] px-5 py-3.5 rounded-xl text-sm font-medium hover:border-[#c5a880] transition-colors"
+                    className="flex min-h-[44px] items-center justify-center gap-2 border border-[#2e2b26] text-[#f3efe6] px-5 py-3.5 rounded-xl text-sm font-medium hover:border-[#c5a880] transition-colors w-full sm:w-auto"
                   >
                     View Stylist Specialties
                   </Link>
@@ -240,7 +240,7 @@ export default function HomePage() {
         </section>
 
         {/* DYNAMIC OWNER-CURATED LOOKBOOK GALLERY STRIP */}
-        <section className="py-16 overflow-hidden">
+        <section className="cv-auto py-16 overflow-hidden">
           <FadeIn className="text-center mb-8 px-4">
             <div className="flex items-center justify-center gap-2 mb-2">
               <span className="text-[#c5a880] text-xs font-semibold tracking-[0.25em] uppercase">
@@ -262,7 +262,7 @@ export default function HomePage() {
 
           {/* Automatic Dynamic Editorial Grid Formatting */}
           <div className="max-w-7xl mx-auto px-4">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[160px] sm:auto-rows-[190px]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 auto-rows-[clamp(140px,40vw,160px)] sm:auto-rows-[190px]">
               {homePhotos.map((photo, i) => {
                 // Dynamic automatic grid layout based on item index and aspect ratio
                 const isHero = i === 0;
@@ -312,7 +312,7 @@ export default function HomePage() {
             <div className="text-center mt-8">
               <Link
                 href="/gallery"
-                className="inline-flex items-center gap-2 bg-[#1a1816] border border-[#2e2b26] hover:border-[#c5a880] text-[#f3efe6] hover:text-[#c5a880] px-6 py-3 rounded-xl text-sm font-semibold transition-all"
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 bg-[#1a1816] border border-[#2e2b26] hover:border-[#c5a880] text-[#f3efe6] hover:text-[#c5a880] px-6 py-3 rounded-xl text-sm font-semibold transition-all"
               >
                 View Complete Salon Lookbook ({homePhotos.length}+ Styles) <ChevronRight className="w-4 h-4" />
               </Link>
@@ -323,7 +323,7 @@ export default function HomePage() {
         <HomeTestimonials />
 
         {/* SALON STORY & LOCATION */}
-        <section className="py-16 sm:py-20 px-4">
+        <section className="cv-auto py-16 sm:py-20 px-4">
           <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 lg:gap-14 items-center">
             <FadeIn className="relative min-h-[300px] sm:min-h-[420px] rounded-md overflow-hidden bg-gradient-to-br from-[#4a3527] via-[#221a15] to-[#0d0c0b]">
               <Image src={heroImage} alt="Salon interior and barber stations at Uptown Hair" fill sizes="(max-width: 768px) 100vw, 50vw" quality={60} className="object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
@@ -344,23 +344,23 @@ export default function HomePage() {
                 <p className="flex items-start gap-2"><Clock className="w-4 h-4 text-[#c5a880] shrink-0" /> Mon–Fri 9 AM–8 PM · Sat–Sun 8 AM–9 PM</p>
               </div>
               <div className="flex flex-wrap gap-3 mt-6">
-              <Link href="/about" className="inline-flex items-center gap-2 border border-[#806b4e] px-4 py-3 text-xs font-semibold tracking-wide text-[#dfc8a8] hover:bg-[#c5a880] hover:text-[#141312] transition-colors">More about us <ArrowUpRight className="w-4 h-4" /></Link>
-                <Link href="/contact" className="inline-flex items-center gap-2 px-4 py-3 text-xs font-semibold tracking-wide text-[#b7aa9c] hover:text-white transition-colors">Get directions <ChevronRight className="w-4 h-4" /></Link>
+                <Link href="/about" className="inline-flex min-h-[44px] items-center justify-center gap-2 border border-[#806b4e] px-4 py-3 text-xs font-semibold tracking-wide text-[#dfc8a8] hover:bg-[#c5a880] hover:text-[#141312] transition-colors">More about us <ArrowUpRight className="w-4 h-4" /></Link>
+                <Link href="/contact" className="inline-flex min-h-[44px] items-center justify-center gap-2 px-4 py-3 text-xs font-semibold tracking-wide text-[#b7aa9c] hover:text-white transition-colors">Get directions <ChevronRight className="w-4 h-4" /></Link>
               </div>
             </FadeIn>
           </div>
         </section>
 
         {/* CTA BANNER */}
-        <section className="py-14 sm:py-20 px-4">
+        <section className="cv-auto py-14 sm:py-20 px-4">
           <FadeIn>
-            <div className="max-w-7xl mx-auto grid sm:grid-cols-[auto_1fr_auto] items-center gap-5 sm:gap-8 rounded-md border border-[#2e2b26] bg-gradient-to-r from-[#171411] to-[#100f0d] px-5 py-6 sm:px-8 sm:py-7">
+            <div className="max-w-7xl mx-auto grid sm:grid-cols-[auto_1fr_auto] items-center gap-5 sm:gap-8 rounded-2xl border border-[#2e2b26] bg-gradient-to-r from-[#171411] to-[#100f0d] px-5 py-6 sm:px-8 sm:py-7">
               <span className="hidden sm:flex w-14 h-14 items-center justify-center rounded-full border border-[#806b4e] text-[#dfc8a8]"><CalendarDays className="w-6 h-6" /></span>
               <div>
                 <h2 className="text-3xl sm:text-4xl font-semibold text-white leading-none" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Ready for a new you?</h2>
                 <p className="text-[#a99c8e] text-xs sm:text-sm mt-2">Choose your service and let our team take it from there.</p>
               </div>
-              <Link href="/book" className="inline-flex items-center justify-center gap-2 bg-[#c5a880] hover:bg-[#dfc8a8] text-[#141312] px-6 py-3.5 rounded-md font-bold text-xs tracking-wide transition-colors">
+              <Link href="/book" className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-[#c5a880] hover:bg-[#dfc8a8] text-[#141312] px-6 py-3.5 rounded-xl font-bold text-xs tracking-wide transition-colors w-full sm:w-auto">
                 Book Appointment <ArrowUpRight className="w-4 h-4" />
               </Link>
             </div>

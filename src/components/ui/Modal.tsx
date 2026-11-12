@@ -57,7 +57,7 @@ export function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2 }}
-            className={`relative z-10 w-full ${maxWStyles} rounded-3xl bg-[#141312] border border-[#2e2b26] p-6 shadow-2xl`}
+            className={`relative z-10 w-full ${maxWStyles} max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl bg-[#141312] border border-[#2e2b26] p-5 sm:p-6 shadow-2xl overscroll-contain`}
           >
             <div className="flex items-start justify-between mb-4">
               <div>

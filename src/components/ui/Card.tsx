@@ -26,7 +26,7 @@ export function Card({
 
   return (
     <div
-      className={`rounded-2xl p-6 ${variantStyles} ${hoverStyles} ${className}`}
+      className={`rounded-2xl p-4 sm:p-6 ${variantStyles} ${hoverStyles} ${className}`}
       {...props}
     >
       {children}

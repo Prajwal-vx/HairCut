@@ -31,7 +31,7 @@ export function BarberBriefModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="barber-brief-title"
-        className="w-full max-w-lg rounded-2xl border border-[#c5a880]/40 bg-[#141312] p-5 sm:p-7 shadow-2xl"
+        className="w-full max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-[#c5a880]/40 bg-[#141312] p-5 sm:p-7 shadow-2xl overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">

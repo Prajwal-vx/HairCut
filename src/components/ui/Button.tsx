@@ -26,9 +26,9 @@ export function Button({
     "inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]";
 
   const sizeStyles = {
-    sm: "px-3 py-1.5 text-xs gap-1.5",
-    md: "px-5 py-2.5 text-sm gap-2",
-    lg: "px-7 py-3 text-base gap-2.5 rounded-2xl",
+    sm: "px-3 py-1.5 text-xs gap-1.5 min-h-[36px]",
+    md: "px-5 py-2.5 text-sm gap-2 min-h-[44px]",
+    lg: "px-7 py-3 text-base gap-2.5 rounded-2xl min-h-[48px]",
   }[size];
 
   const variantStyles = {

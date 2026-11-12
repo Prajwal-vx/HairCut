@@ -371,7 +371,77 @@ function AdminContent() {
                 <div><h2 className="text-xl font-bold text-white">Appointment requests</h2><p className="mt-1 text-xs text-[#a99c8e]">New requests refresh automatically. Confirm a time before it is booked.</p></div>
                 <span className="text-xs text-[#d5a95f]">{appointments.filter((appointment) => appointment.status === "pending").length} awaiting review</span>
               </div>
-              <div className="overflow-x-auto">
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-3">
+                {appointments.map((apt) => (
+                  <div key={`mobile-${apt.id}`} className="rounded-xl border border-[#2e2b26] bg-[#141312] p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <button type="button" onClick={() => openClientActivity(apt.userId)} className="text-left font-semibold text-[#e0d8cd] underline-offset-2 hover:text-[#dfc8a8] hover:underline">
+                          {apt.userName || "Client"}
+                        </button>
+                        <p className="text-xs text-[#c5a880] font-medium">{apt.serviceName}</p>
+                      </div>
+                      <span
+                        className={`text-[10px] px-2.5 py-1 rounded-full font-semibold shrink-0 ${
+                          apt.status === "pending"
+                            ? "bg-amber-950/50 text-amber-300 border border-amber-800/50"
+                            : apt.status === "upcoming"
+                            ? "bg-[#c5a880]/20 text-[#c5a880]"
+                            : apt.status === "completed"
+                            ? "bg-green-950/60 text-green-400 border border-green-800/40"
+                            : apt.status === "cancelled" || apt.status === "declined"
+                            ? "bg-red-950/60 text-red-400 border border-red-800/40"
+                            : "bg-[#78716c]/20 text-[#78716c]"
+                        }`}
+                      >
+                        {apt.status === "upcoming" ? "Confirmed" : apt.status === "pending" ? "Awaiting confirmation" : apt.status === "declined" ? "Declined" : apt.status === "no-show" ? "No-show" : apt.status}
+                      </span>
+                    </div>
+
+                    {apt.notes && (
+                      <p className="rounded-lg bg-[#1a1816] p-2 text-xs text-[#a99c8e]">
+                        <span className="text-[#78716c] font-medium">Note:</span> {apt.notes}
+                      </p>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2 text-xs border-t border-[#2e2b26]/50 pt-2 text-[#78716c]">
+                      <div>
+                        <span className="text-[#a99c8e] block">Stylist:</span>
+                        <span className="text-white font-medium">{apt.stylistName}</span>
+                      </div>
+                      <div>
+                        <span className="text-[#a99c8e] block">Slot:</span>
+                        <span className="text-white font-medium">{apt.visitDate} ({apt.timeSlot})</span>
+                      </div>
+                      <div>
+                        <span className="text-[#a99c8e] block">Amount:</span>
+                        <span className="text-[#c5a880] font-semibold">{formatCurrency(apt.amountPaid)}</span>
+                      </div>
+                    </div>
+
+                    {(apt.status === "pending" || apt.status === "upcoming") && (
+                      <div className="border-t border-[#2e2b26]/50 pt-3">
+                        {apt.status === "pending" && (
+                          <div className="flex gap-2">
+                            <button type="button" onClick={() => updateAppointment(apt.id, "upcoming")} disabled={updatingApt === apt.id} className="flex-1 flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-[#c5a880] px-3 py-2 text-xs font-semibold text-[#141312] hover:bg-[#dfc8a8] active:scale-95 disabled:opacity-50"><Check className="h-4 w-4" /> Confirm</button>
+                            <button type="button" onClick={() => updateAppointment(apt.id, "declined")} disabled={updatingApt === apt.id} className="flex-1 flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-red-800 px-3 py-2 text-xs text-red-300 hover:bg-red-950/40 active:scale-95 disabled:opacity-50"><X className="h-4 w-4" /> Decline</button>
+                          </div>
+                        )}
+                        {apt.status === "upcoming" && (
+                          <div className="flex gap-2">
+                            <button onClick={() => updateAppointment(apt.id, "completed")} disabled={updatingApt === apt.id} className="flex-1 flex min-h-10 items-center justify-center gap-1.5 text-green-400 border border-green-800 hover:bg-green-900/30 px-3 py-2 rounded-lg text-xs font-semibold active:scale-95 disabled:opacity-50"><Check className="w-4 h-4" /> Completed</button>
+                            <button onClick={() => updateAppointment(apt.id, "cancelled")} disabled={updatingApt === apt.id} className="flex-1 flex min-h-10 items-center justify-center gap-1.5 text-red-400 border border-red-800 hover:bg-red-900/30 px-3 py-2 rounded-lg text-xs font-semibold active:scale-95 disabled:opacity-50"><X className="w-4 h-4" /> Cancel</button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[#2e2b26]">
@@ -447,7 +517,31 @@ function AdminContent() {
           {tab === "clients" && stats?.clients && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card rounded-2xl p-6">
               <h2 className="text-xl font-bold text-white mb-4">Client Database</h2>
-              <div className="overflow-x-auto">
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-3">
+                {stats.clients.map((c) => (
+                  <div key={`client-card-${c.id}`} className="rounded-xl border border-[#2e2b26] bg-[#141312] p-4 space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-semibold text-white">{c.fullName}</p>
+                        <p className="text-xs text-[#a99c8e]">{c.email}</p>
+                        <p className="text-xs text-[#78716c]">{c.phone}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs text-[#c5a880] font-semibold">⭐ {c.loyaltyPoints} pts</span>
+                        {c.styleStreak > 0 && <p className="text-xs text-[#c86d51]">🔥 {c.styleStreak} streak</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-[#2e2b26]/50 pt-2 text-xs text-[#a99c8e]">
+                      <span>{c.visitCount} visits · Last: {c.lastVisitDate || "Never"}</span>
+                      <button type="button" onClick={() => openClientActivity(c.id)} className="text-xs text-[#c5a880] hover:underline font-medium">Activity →</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[#2e2b26]">

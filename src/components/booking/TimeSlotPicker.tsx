@@ -46,7 +46,7 @@ export function TimeSlotPicker({
           <Clock className="w-4 h-4 text-[#c5a880]" />
           <h4 className="text-sm font-semibold text-white">Select Time Slot</h4>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+        <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
           {TIME_SLOTS.map((slot) => {
             const isSelected = selectedTime === slot;
 
@@ -55,7 +55,7 @@ export function TimeSlotPicker({
                 key={slot}
                 type="button"
                 onClick={() => onSelectTime(slot)}
-                className={`py-2 px-1 text-xs font-medium rounded-xl border transition-all text-center ${
+                className={`min-h-[44px] py-2.5 px-1.5 text-xs font-medium rounded-xl border transition-all text-center flex items-center justify-center active:scale-95 ${
                   isSelected
                     ? "bg-[#c5a880] text-[#141312] border-[#c5a880] font-semibold shadow-md shadow-[#c5a880]/15"
                     : "bg-[#1e1c19] text-stone-300 border-[#2e2b26] hover:border-[#c5a880]/40 hover:text-white"
